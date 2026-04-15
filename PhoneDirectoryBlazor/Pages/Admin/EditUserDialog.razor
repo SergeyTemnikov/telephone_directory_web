@@ -1,0 +1,403 @@
+﻿@inject IAdminClient AdminClient
+@inject IUsersClient UsersClient
+@inject ISnackbar Snackbar
+@using System.Globalization
+
+<Modal IsVisible="@IsVisible" IsVisibleChanged="OnIsVisibleChanged">
+    <MudPaper Class="pa-4">
+        <MudText Typo="Typo.h6">@Title</MudText>
+
+        <MudForm @ref="_form" Class="mt-3">
+            @* 🔹 Email *@
+            <MudTextField @bind-Value="editEmail"
+                          Label="Email"
+                          For="@(() => editEmail)"
+                          Required="true"
+                          Type="InputType.Email"
+                          HelperText="Например: user@company.com" />
+
+            @* 🔹 Пароль (только при создании) *@
+            @if (IsCreateMode)
+            {
+                <MudTextField @bind-Value="editPassword"
+                              Label="Пароль"
+                              For="@(() => editPassword)"
+                              Required="true"
+                              Type="InputType.Password"
+                              HelperText="Минимум 8 символов"
+                              Class="mt-2" />
+            }
+
+            @* 🔹 Дата окончания доступа — ИСПРАВЛЕНО *@
+            <MudDatePicker Label="Дата окончания доступа"
+                           Editable="true"
+                           ImmediateText="true"
+                           Placeholder="дд.ММ.гггг"
+                           DateFormat="@_dateFormat"
+                           Date="@editEndDate"
+                           TextChanged="OnDateTextChanged"
+                           MinDate="@MinSelectableDate"
+                           IsDateDisabledFunc="@IsDateDisabled"
+                           AdditionalDateClassesFunc="@GetDateClass"
+                           Class="mt-2"
+                           Clearable="true" />
+
+            @* 🔹 Статус аккаунта *@
+            <MudSwitch @bind-Value="editIsActive" Label="Аккаунт активен" Class="mt-2" />
+
+            @* 🔹 Роли (чекбоксы вместо выпадающего списка) *@
+            <MudText Typo="Typo.subtitle2" Class="mt-4 mb-2">Роли</MudText>
+
+            <MudStack Spacing="1">
+                @foreach (var role in _availableRoles)
+                {
+                    <MudCheckBox T="bool"
+                                 Label="@role.Name"
+                                 Value="@(selectedRoleIds.Contains(role.Id))"
+                                 ValueChanged="@(async v => await OnRoleCheckboxChanged(role.Id, v))"
+                                 Color="Color.Primary" />
+                }
+            </MudStack>
+
+            <div class="d-flex justify-end gap-2 mt-4">
+                <MudButton Variant="Variant.Text" OnClick="Cancel">Отмена</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveAsync" Disabled="@_saving">
+                    @(_saving ? "Сохранение..." : "Сохранить")
+                </MudButton>
+            </div>
+        </MudForm>
+    </MudPaper>
+</Modal>
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public EventCallback<bool> IsVisibleChanged { get; set; }
+    [Parameter] public UserViewModel? Model { get; set; }
+    [Parameter] public EventCallback<bool> OnSaved { get; set; }
+
+    private MudForm? _form;
+    private string editEmail = "";
+    private string editPassword = "";
+
+    // 🔹 ИСПРАВЛЕНО: Используем DateTime? для календаря
+    private DateTime? editEndDate;
+    private string _dateFormat = "dd.MM.yyyy";
+
+    private bool editIsActive = true;
+
+    // 🔹 Локальный список выбранных ролей (не синхронизируется с сервером до SaveAsync)
+    private HashSet<int?> selectedRoleIds = new();
+
+    private DateTime MinSelectableDate => DateTime.Today.AddDays(1);
+
+    private bool _saving;
+    private List<RoleViewModel> _availableRoles = new();
+    private CancellationTokenSource? _cts;
+
+    private string Title => IsCreateMode ? "Создать пользователя" : "Редактировать пользователя";
+    private bool IsCreateMode => Model?.Id == null || Model.Id == 0;
+
+    protected override void OnInitialized()
+    {
+        _cts = new CancellationTokenSource();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        editEmail = Model?.Email ?? string.Empty;
+        editPassword = "";
+
+        // 🔹 Инициализация даты из модели
+        editEndDate = Model?.EndDateOfAccess;
+
+        editIsActive = Model?.IsActive ?? true;
+
+        // 🔹 Инициализация выбранных ролей из модели (или пустой список при создании)
+        if (Model?.Roles != null)
+        {
+            selectedRoleIds = new HashSet<int?>(Model.Roles.Select(r => (int?)r.Id));
+        }
+        else
+        {
+            selectedRoleIds = new HashSet<int?>();
+        }
+
+        await LoadAvailableRoles();
+    }
+
+    // 🔹 НОВЫЙ: Обработчик изменения текста в DatePicker
+    private void OnDateTextChanged(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value) || value.Length < 6)
+        {
+            editEndDate = null;
+        }
+        else
+        {
+            string[] formats = { "ddMMyy", "dd.MM.yyyy", "dd.M.yyyy", "d.MM.yyyy", "d.M.yyyy", "dd.MM.yy", "dd.M.yy", "d.MM.yy", "d.M.yy" };
+            if (DateTime.TryParseExact(value, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime validDate))
+            {
+                editEndDate = validDate;
+            }
+            else
+            {
+                editEndDate = null;
+            }
+        }
+
+        // 🔹 Безопасный вызов только если компонент активен
+        if (IsVisible)
+        {
+            try { StateHasChanged(); }
+            catch (ObjectDisposedException) { /* Игнорируем */ }
+        }
+    }
+
+    private async Task LoadAvailableRoles()
+    {
+        try
+        {
+            var resp = await UsersClient.RolesGetAsync();
+            _availableRoles = resp?.Data?
+                .Select(r => new RoleViewModel
+                {
+                    Id = r.Id ?? 0,
+                    Name = r.Name ?? string.Empty
+                })
+                .ToList() ?? new List<RoleViewModel>();
+        }
+        catch
+        {
+            // Фолбэк на хардкод, если эндпоинт не работает
+            _availableRoles = new List<RoleViewModel>
+            {
+                new() { Id = 1, Name = "ADMIN" },
+                new() { Id = 2, Name = "USER" }
+            };
+        }
+    }
+
+    // 🔹 Подсветка выходных красным (опционально)
+    private string GetDateClass(DateTime date)
+    {
+        if (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday)
+        {
+            return "mud-text-error";
+        }
+        return string.Empty;
+    }
+
+    // 🔹 Запрещает выбор дат раньше завтрашнего дня
+    private bool IsDateDisabled(DateTime date)
+    {
+        return date.Date <= DateTime.Today;
+    }
+
+    // 🔹 Обработчик изменения чекбокса роли
+    private Task OnRoleCheckboxChanged(int? roleId, bool isChecked)
+    {
+        if (!roleId.HasValue) return Task.CompletedTask;
+        if (isChecked)
+        {
+            selectedRoleIds.Add(roleId);
+        }
+        else
+        {
+            selectedRoleIds.Remove(roleId);
+        }
+        return Task.CompletedTask;
+    }
+
+    private async Task SaveAsync()
+    {
+        await (_form?.ValidateAsync() ?? Task.CompletedTask);
+        if (_form != null && !_form.IsValid) return;
+
+        if (string.IsNullOrWhiteSpace(editEmail))
+        {
+            Snackbar.Add("Введите Email", Severity.Warning);
+            return;
+        }
+
+        if (IsCreateMode && string.IsNullOrWhiteSpace(editPassword))
+        {
+            Snackbar.Add("Введите пароль", Severity.Warning);
+            return;
+        }
+
+        _saving = true;
+        StateHasChanged();
+
+        try
+        {
+            // 🔹 Конвертация роли
+            var roleIdsToSend = selectedRoleIds
+                .Where(id => id.HasValue)
+                .Select(id => id!.Value)
+                .ToList();
+
+            // 🔹 Конвертация даты: DateTime? → string "yyyy-MM-dd" для API
+            string endDateForApi = editEndDate?.ToString("yyyy-MM-dd");
+
+            if (IsCreateMode)
+            {
+                var req = new CreateUserRequest
+                {
+                    Email = editEmail,
+                    Password = editPassword,
+                    End_date_of_access = string.IsNullOrWhiteSpace(endDateForApi)
+                        ? "2030-12-31"
+                        : endDateForApi,
+                    Role_ids = roleIdsToSend
+                };
+                await AdminClient.UsersPostAsync(req, _cts.Token);
+            }
+            else
+            {
+                if (Model?.Id.HasValue == true)
+                {
+                    var req = new UpdateUserRequest
+                    {
+                        Email = editEmail,
+                        End_date_of_access = string.IsNullOrWhiteSpace(endDateForApi)
+                            ? null
+                            : endDateForApi
+                    };
+                    await AdminClient.UsersPutAsync(Model.Id.Value, req, _cts.Token);
+                    await UsersClient.StatusAsync(Model.Id.Value, new ToggleStatusRequest { Active = editIsActive }, _cts.Token);
+
+                    await SyncRolesAsync(Model.Id.Value, roleIdsToSend);
+                }
+            }
+
+            if (IsVisible && OnSaved.HasDelegate)
+            {
+                await OnSaved.InvokeAsync(true);
+            }
+
+            await CloseModalAsync();
+        }
+        catch (OperationCanceledException)
+        {
+            // Игнорируем отмену
+        }
+        catch (ApiException aex)
+        {
+            if (IsVisible)
+            {
+                if (aex.StatusCode == 409)
+                {
+                    Snackbar.Add("Пользователь с таким Email уже существует", Severity.Error);
+                }
+                else
+                {
+                    Snackbar.Add($"Ошибка API: {aex.Message}", Severity.Error);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            if (IsVisible)
+            {
+                Snackbar.Add($"Ошибка: {ex.Message}", Severity.Error);
+            }
+        }
+        finally
+        {
+            _saving = false;
+            if (IsVisible)
+            {
+                try { StateHasChanged(); }
+                catch (ObjectDisposedException) { /* Игнорируем */ }
+            }
+        }
+    }
+
+    // 🔹 Синхронизация ролей: добавление/удаление на сервере
+    private async Task SyncRolesAsync(int userId, List<int> desiredRoleIds)
+    {
+        try
+        {
+            var currentRolesResp = await AdminClient.UsersGetAsync(userId);
+            var currentRoleIds = currentRolesResp?.Data?.Roles?
+                .Select(r => r.Id)
+                .Where(id => id.HasValue)
+                .Select(id => id!.Value)
+                .ToHashSet() ?? new HashSet<int>();
+
+            var desiredSet = new HashSet<int>(desiredRoleIds);
+
+            var toAdd = desiredSet.Except(currentRoleIds).ToList();
+            foreach (var roleId in toAdd)
+            {
+                try
+                {
+                    await UsersClient.RolesPostAsync(userId, new AssignRoleRequest
+                    {
+                        User_id = userId,
+                        Role_id = roleId
+                    }, _cts.Token);
+                }
+                catch (ApiException aex)
+                {
+                    Snackbar.Add($"Не удалось назначить роль: {aex.Message}", Severity.Warning);
+                }
+            }
+
+            var toRemove = currentRoleIds.Except(desiredSet).ToList();
+            foreach (var roleId in toRemove)
+            {
+                try
+                {
+                    await UsersClient.RolesDeleteAsync(userId, roleId, _cts.Token);
+                }
+                catch (ApiException aex)
+                {
+                    Snackbar.Add($"Не удалось удалить роль: {aex.Message}", Severity.Warning);
+                }
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Не удалось полностью синхронизировать роли", Severity.Warning);
+        }
+    }
+
+    private async Task Cancel()
+    {
+        if (!IsVisible) return;
+
+        if (OnSaved.HasDelegate)
+        {
+            await OnSaved.InvokeAsync(false);
+        }
+        await CloseModalAsync();
+    }
+
+    private async Task CloseModalAsync()
+    {
+        if (!IsVisible) return;
+
+        IsVisible = false;
+
+        if (IsVisibleChanged.HasDelegate)
+        {
+            await IsVisibleChanged.InvokeAsync(IsVisible);
+        }
+    }
+
+    private Task OnIsVisibleChanged(bool visible)
+    {
+        if (!visible && OnSaved.HasDelegate)
+        {
+            OnSaved.InvokeAsync(false);
+        }
+        return Task.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        _cts?.Cancel();
+        _cts?.Dispose();
+    }
+}

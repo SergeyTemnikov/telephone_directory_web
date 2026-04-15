@@ -1,0 +1,140 @@
+﻿@page "/admin/positions"
+@inject IAdminClient AdminClient
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<MudStack Spacing="2">
+    <MudText Typo="Typo.h5">Позиции</MudText>
+    
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OpenCreate">
+        <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-2" />
+        Добавить позицию
+    </MudButton>
+
+    <MudTable Items="_items" Hover="true" Bordered="true" Striped="true">
+        <HeaderContent>
+            <MudTh>Id</MudTh>
+            <MudTh>Название</MudTh>
+            <MudTh>Действия</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Id">@context.Id</MudTd>
+            <MudTd DataLabel="Название">@context.Name</MudTd>
+            <MudTd DataLabel="Действия">
+                <MudButton Size="Size.Small" Variant="Variant.Text" OnClick="(() => OpenEdit(context))">
+                    Редактировать
+                </MudButton>
+                <MudButton Size="Size.Small" Color="Color.Error" Variant="Variant.Text" OnClick="(() => Delete(context))">
+                    Удалить
+                </MudButton>
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[] { 10, 25, 50 }" />
+        </PagerContent>
+    </MudTable>
+</MudStack>
+
+<EditPositionDialog IsVisible="@isEditModalVisible"
+                    IsVisibleChanged="@(async v => isEditModalVisible = v)"
+                    Model="@editingModel"
+                    OnSaved="OnEditSaved" />
+
+@code {
+    private List<PositionViewModel> _items = new();
+    private bool isEditModalVisible;
+    private PositionViewModel? editingModel;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadItems();
+    }
+
+    private async Task LoadItems()
+    {
+        try
+        {
+            var resp = await AdminClient.PositionsGetAsync();
+            var data = resp?.Data ?? new List<PositionResponse>();
+            
+            _items = data.Select(p => new PositionViewModel
+            {
+                Id = p.Id,
+                Name = p.Name ?? string.Empty
+            }).ToList();
+        }
+        catch (ApiException aex)
+        {
+            Snackbar.Add($"Ошибка API: {aex.Message}", Severity.Error);
+            _items = new List<PositionViewModel>();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Ошибка загрузки: {ex.Message}", Severity.Error);
+            _items = new List<PositionViewModel>();
+        }
+    }
+
+    private Task OpenCreate()
+    {
+        editingModel = new PositionViewModel();
+        isEditModalVisible = true;
+        return Task.CompletedTask;
+    }
+
+    private Task OpenEdit(PositionViewModel item)
+    {
+        // Создаём копию для редактирования
+        editingModel = new PositionViewModel
+        {
+            Id = item.Id,
+            Name = item.Name
+        };
+        isEditModalVisible = true;
+        return Task.CompletedTask;
+    }
+
+    private async Task OnEditSaved(bool saved)
+    {
+        isEditModalVisible = false;
+        if (saved)
+        {
+            await LoadItems();
+            Snackbar.Add("Сохранено", Severity.Success);
+        }
+    }
+
+    private async Task Delete(PositionViewModel item)
+    {
+        bool? confirm = await DialogService.ShowMessageBoxAsync(
+            "Подтвердите", 
+            $"Удалить позицию «{item.Name}»?", 
+            yesText: "Да", 
+            noText: "Нет");
+        
+        if (confirm == true)
+        {
+            try
+            {
+                if (item.Id.HasValue)
+                {
+                    await AdminClient.PositionsDeleteAsync(item.Id.Value);
+                    await LoadItems();
+                    Snackbar.Add("Удалено", Severity.Success);
+                }
+            }
+            catch (ApiException ex)
+            {
+                // Проверяем, не связана ли позиция с сотрудниками
+                if (ex.StatusCode == 409)
+                {
+                    Snackbar.Add("Невозможно удалить: позиция назначена сотрудникам", Severity.Warning);
+                }
+                else
+                {
+                    Snackbar.Add($"Ошибка удаления: {ex.Message}", Severity.Error);
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,24 @@
+{
+  "runtime": "Net100",
+  "documentGenerator": {
+    "fromDocument": {
+      "url": "http://localhost:8080/api/swagger/doc.json",
+      "output": null
+    }
+  },
+  "codeGenerators": {
+    "openApiToCSharpClient": {
+      "namespace": "PhoneDirectoryBlazor.Services.Api",
+      "output": "Services/Api/Generated/ApiClient.cs",
+      "className": "{controller}Client",
+      "operationGenerationMode": "MultipleClientsFromPathSegments",
+      "generateClientInterfaces": true,
+      "injectHttpClient": true,
+      "disposeHttpClient": false,
+      "generateExceptionClasses": true,
+      "exceptionClass": "ApiException",
+      "jsonLibrary": "NewtonsoftJson",
+      "generateBaseUrl": false
+    }
+  }
+}

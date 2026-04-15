@@ -1,0 +1,112 @@
+﻿@inject IAdminClient AdminClient
+@inject ISnackbar Snackbar
+
+<Modal IsVisible="@IsVisible" IsVisibleChanged="OnIsVisibleChanged">
+    <MudPaper Class="pa-4" Style="min-width:400px;">
+        <MudText Typo="Typo.h6">@Title</MudText>
+
+        <MudForm @ref="_form" Class="mt-3">
+            <MudTextField @bind-Value="editName"
+                          Label="Название позиции"
+                          For="@(() => editName)"
+                          Required="true"
+                          HelperText="Например: Старший разработчик, Менеджер проектов" />
+
+            <div class="d-flex justify-end gap-2 mt-4">
+                <MudButton Variant="Variant.Text" OnClick="Cancel">Отмена</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveAsync" Disabled="@_saving">
+                    @(_saving ? "Сохранение..." : "Сохранить")
+                </MudButton>
+            </div>
+        </MudForm>
+    </MudPaper>
+</Modal>
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public EventCallback<bool> IsVisibleChanged { get; set; }
+    [Parameter] public PositionViewModel? Model { get; set; }
+    [Parameter] public EventCallback<bool> OnSaved { get; set; }
+
+    private MudForm? _form;
+    private string editName = "";
+    private bool _saving;
+
+    private string Title => (Model?.Id == null || Model.Id == 0)
+        ? "Создать позицию"
+        : "Редактировать позицию";
+
+    protected override void OnParametersSet()
+    {
+        editName = Model?.Name ?? string.Empty;
+    }
+
+    private async Task SaveAsync()
+    {
+        await (_form?.ValidateAsync() ?? Task.CompletedTask);
+        if (_form != null && !_form.IsValid) return;
+
+        if (string.IsNullOrWhiteSpace(editName))
+        {
+            Snackbar.Add("Введите название позиции", Severity.Warning);
+            return;
+        }
+
+        _saving = true;
+        try
+        {
+            if (Model == null || Model.Id == null || Model.Id == 0)
+            {
+                // Создание новой позиции
+                var req = new CreatePositionRequest { Name = editName };
+                await AdminClient.PositionsPostAsync(req);
+            }
+            else
+            {
+                // Обновление существующей позиции
+                var req = new UpdatePositionRequest { Name = editName };
+                await AdminClient.PositionsPutAsync(Model.Id.Value, req);
+            }
+
+            await OnSaved.InvokeAsync(true);
+            await CloseModalAsync();
+        }
+        catch (ApiException aex)
+        {
+            if (aex.StatusCode == 409)
+            {
+                Snackbar.Add("Позиция с таким названием уже существует", Severity.Error);
+            }
+            else
+            {
+                Snackbar.Add($"Ошибка API: {aex.Message}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Ошибка: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private async Task Cancel()
+    {
+        await OnSaved.InvokeAsync(false);
+        await CloseModalAsync();
+    }
+
+    private async Task CloseModalAsync()
+    {
+        IsVisible = false;
+        await IsVisibleChanged.InvokeAsync(IsVisible);
+    }
+
+    private Task OnIsVisibleChanged(bool visible)
+    {
+        if (!visible) OnSaved.InvokeAsync(false);
+        return Task.CompletedTask;
+    }
+}

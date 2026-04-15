@@ -1,0 +1,80 @@
+﻿@page "/login"
+@inject IAuthService AuthService
+@inject NavigationManager Nav
+@inject ISnackbar Snackbar
+
+<MudPaper Class="d-flex flex-column mx-auto mt-12 pa-6" Elevation="8" MaxWidth="400px">
+    <MudText Typo="Typo.h5" Class="mb-4">Вход в систему</MudText>
+
+    <MudForm @ref="_form" Valid="OnValidSubmit">
+        <MudTextField @bind-Value="_model.Email"
+                      Label="Логин"
+                      Required="true"
+                      RequiredError="Введите логин" />
+
+        <MudTextField @bind-Value="_model.Password"
+                      Label="Пароль"
+                      InputType="InputType.Password"
+                      Required="true"
+                      RequiredError="Введите пароль" />
+
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Class="mt-4"
+                   Disabled="_loading"
+                   OnClick="Submit">
+            @(_loading ? "Вход..." : "Войти")
+        </MudButton>
+    </MudForm>
+</MudPaper>
+
+@code {
+    private MudForm? _form;
+    private bool _loading = false;
+    private LoginRequest _model = new();
+
+    private async Task Submit()
+    {
+        if (_form == null) return;
+        await _form.ValidateAsync();
+        if (!_form.IsValid) return;
+        await OnValidSubmit();
+    }
+
+    private async Task OnValidSubmit()
+    {
+        try
+        {
+            _loading = true;
+            await AuthService.LoginAsync(_model);
+
+            Snackbar.Add("✓ Успешный вход", Severity.Success);
+            Nav.NavigateTo("/", forceLoad: true);
+        }
+        catch (ApiException ex)
+        {
+            string message = ex.StatusCode switch
+            {
+                401 => "Неверная почта или пароль, либо аккаунт отключён",
+                403 => "Доступ запрещён: аккаунт истёк или не активен",
+                404 => "Пользователь не найден",
+                422 => "Ошибка валидации: проверьте данные",
+                _ => $"Ошибка входа: {ex.Message}"
+            };
+
+            Snackbar.Add(message, Severity.Error, config =>
+            {
+                config.VisibleStateDuration = 5000;
+                config.ShowCloseIcon = true;
+            });
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Неожиданная ошибка: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}

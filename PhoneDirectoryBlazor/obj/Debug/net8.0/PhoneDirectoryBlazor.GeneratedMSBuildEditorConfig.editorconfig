@@ -1,0 +1,116 @@
+is_global = true
+build_property.EnableAotAnalyzer = 
+build_property.EnableSingleFileAnalyzer = 
+build_property.EnableTrimAnalyzer = false
+build_property.IncludeAllContentForSelfExtract = 
+build_property.MudDebugAnalyzer = 
+build_property.MudAllowedAttributePattern = 
+build_property.MudAllowedAttributeList = 
+build_property.TargetFramework = net8.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = false
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = browser
+build_property.RootNamespace = PhoneDirectoryBlazor
+build_property.RootNamespace = PhoneDirectoryBlazor
+build_property.ProjectDir = C:\Users\SergeyT\source\repos\PhoneDirectoryBlazor\PhoneDirectoryBlazor\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = false
+build_property.RazorLangVersion = 8.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\Users\SergeyT\source\repos\PhoneDirectoryBlazor\PhoneDirectoryBlazor
+build_property._RazorSourceGeneratorDebug = 
+build_property.EffectiveAnalysisLevelStyle = 8.0
+build_property.EnableCodeStyleSeverity = 
+
+[C:/Users/SergeyT/source/repos/PhoneDirectoryBlazor/PhoneDirectoryBlazor/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/SergeyT/source/repos/PhoneDirectoryBlazor/PhoneDirectoryBlazor/Components/AppInitializer.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xBcHBJbml0aWFsaXplci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/SergeyT/source/repos/PhoneDirectoryBlazor/PhoneDirectoryBlazor/Components/Modal.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xNb2RhbC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/SergeyT/source/repos/PhoneDirectoryBlazor/PhoneDirectoryBlazor/Components/RedirectToLogin.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xSZWRpcmVjdFRvTG9naW4ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/SergeyT/source/repos/PhoneDirectoryBlazor/PhoneDirectoryBlazor/Components/YandexMap.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xZYW5kZXhNYXAucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/SergeyT/source/repos/PhoneDirectoryBlazor/PhoneDirectoryBlazor/Pages/Admin/DepartmentsTab.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cRGVwYXJ0bWVudHNUYWIucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/SergeyT/source/repos/PhoneDirectoryBlazor/PhoneDirectoryBlazor/Pages/Admin/EditDepartmentDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cRWRpdERlcGFydG1lbnREaWFsb2cucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/SergeyT/source/repos/PhoneDirectoryBlazor/PhoneDirectoryBlazor/Pages/Admin/EditEmployeeDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cRWRpdEVtcGxveWVlRGlhbG9nLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/SergeyT/source/repos/PhoneDirectoryBlazor/PhoneDirectoryBlazor/Pages/Admin/EditPositionDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cRWRpdFBvc2l0aW9uRGlhbG9nLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/SergeyT/source/repos/PhoneDirectoryBlazor/PhoneDirectoryBlazor/Pages/Admin/EditUserDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cRWRpdFVzZXJEaWFsb2cucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/SergeyT/source/repos/PhoneDirectoryBlazor/PhoneDirectoryBlazor/Pages/Admin/EmployeesTab.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cRW1wbG95ZWVzVGFiLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/SergeyT/source/repos/PhoneDirectoryBlazor/PhoneDirectoryBlazor/Pages/Admin/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cSW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/SergeyT/source/repos/PhoneDirectoryBlazor/PhoneDirectoryBlazor/Pages/Admin/PositionsTab.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cUG9zaXRpb25zVGFiLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/SergeyT/source/repos/PhoneDirectoryBlazor/PhoneDirectoryBlazor/Pages/Admin/UsersTab.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cVXNlcnNUYWIucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/SergeyT/source/repos/PhoneDirectoryBlazor/PhoneDirectoryBlazor/Pages/EmployeeDetails.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRW1wbG95ZWVEZXRhaWxzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/SergeyT/source/repos/PhoneDirectoryBlazor/PhoneDirectoryBlazor/Pages/Home.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSG9tZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/SergeyT/source/repos/PhoneDirectoryBlazor/PhoneDirectoryBlazor/Pages/Login.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9naW4ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/SergeyT/source/repos/PhoneDirectoryBlazor/PhoneDirectoryBlazor/Pages/OrgTree.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcT3JnVHJlZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/SergeyT/source/repos/PhoneDirectoryBlazor/PhoneDirectoryBlazor/Shared/EmployeeCard.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEVtcGxveWVlQ2FyZC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/SergeyT/source/repos/PhoneDirectoryBlazor/PhoneDirectoryBlazor/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/SergeyT/source/repos/PhoneDirectoryBlazor/PhoneDirectoryBlazor/Layout/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = TGF5b3V0XE1haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-er7i8egoy9
+
+[C:/Users/SergeyT/source/repos/PhoneDirectoryBlazor/PhoneDirectoryBlazor/Layout/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = TGF5b3V0XE5hdk1lbnUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-azmyz6iv6f

@@ -1,0 +1,20 @@
+﻿@page "/admin"
+@attribute [Authorize(Roles = "ADMIN")]
+@using MudBlazor
+
+<MudPaper Class="pa-4">
+    <MudTabs Rounded="true" Elevation="0">
+        <MudTabPanel Text="Departments">
+            <DepartmentsTab />
+        </MudTabPanel>
+        <MudTabPanel Text="Employees">
+            <EmployeesTab />
+        </MudTabPanel>
+        <MudTabPanel Text="Positions">
+            <PositionsTab />
+        </MudTabPanel>
+        <MudTabPanel Text="Users">
+            <UsersTab />
+        </MudTabPanel>
+    </MudTabs>
+</MudPaper>

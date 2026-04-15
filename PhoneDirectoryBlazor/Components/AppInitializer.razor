@@ -1,0 +1,117 @@
+﻿@inject ILocalStorageService LocalStorage
+@inject IAuthService AuthService
+@inject ISnackbar Snackbar
+@using System.Threading
+
+@code {
+    private PeriodicTimer? _refreshTimer;
+    private CancellationTokenSource? _cts;
+    private bool _isTimerRunning;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // 🔹 1. Попытка восстановить сессию при старте приложения
+        await TryRestoreSessionAsync();
+
+        // 🔹 2. Запустить таймер авто-рефреша, если пользователь аутентифицирован
+        if (await AuthService.IsAuthenticatedAsync())
+        {
+            StartRefreshTimer();
+        }
+    }
+
+    private async Task TryRestoreSessionAsync()
+    {
+        try
+        {
+            var refreshToken = await LocalStorage.GetItemAsync<string>("refreshToken");
+            if (!string.IsNullOrWhiteSpace(refreshToken))
+            {
+                try
+                {
+                    await AuthService.RefreshAsync(new RefreshRequest { Refresh_token = refreshToken });
+                    Snackbar.Add("Сессия восстановлена", Severity.Success);
+                }
+                catch
+                {
+                    // 🔹 Рефреш не удался — чистим хранилище
+                    await LocalStorage.RemoveItemAsync("authToken");
+                    await LocalStorage.RemoveItemAsync("refreshToken");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine("AppInitializer: Session restore error: " + ex.Message);
+        }
+    }
+
+    private void StartRefreshTimer()
+    {
+        if (_isTimerRunning) return;
+
+        _cts = new CancellationTokenSource();
+        // 🔹 Рефреш каждые 15 минут (900 секунд)
+        _refreshTimer = new PeriodicTimer(TimeSpan.FromMinutes(15));
+        _isTimerRunning = true;
+
+        // 🔹 Запускаем фоновую задачу
+        _ = RunRefreshLoopAsync(_cts.Token);
+    }
+
+    private async Task RunRefreshLoopAsync(CancellationToken token)
+    {
+        while (!token.IsCancellationRequested)
+        {
+            try
+            {
+                // 🔹 Ждём следующего интервала
+                if (await _refreshTimer!.WaitForNextTickAsync(token))
+                {
+                    // 🔹 Проверяем, что пользователь всё ещё аутентифицирован
+                    if (await AuthService.IsAuthenticatedAsync())
+                    {
+                        var refreshToken = await LocalStorage.GetItemAsync<string>("refreshToken");
+                        if (!string.IsNullOrWhiteSpace(refreshToken))
+                        {
+                            await AuthService.RefreshAsync(new RefreshRequest { Refresh_token = refreshToken });
+                            // 🔹 Тихий рефреш — не показываем Snackbar, чтобы не спамить пользователя
+                        }
+                    }
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // 🔹 Нормальное завершение при остановке таймера
+                break;
+            }
+            catch (Exception ex)
+            {
+                // 🔹 Ошибка рефреша — логируем, но не прерываем цикл
+                Console.Error.WriteLine("AppInitializer: Auto-refresh error: " + ex.Message);
+
+                // 🔹 Если рефреш не удался (401/403) — чистим токены и останавливаем таймер
+                if (ex is ApiException apiEx && apiEx.StatusCode is 401 or 403)
+                {
+                    await LocalStorage.RemoveItemAsync("authToken");
+                    await LocalStorage.RemoveItemAsync("refreshToken");
+                    StopRefreshTimer();
+                }
+            }
+        }
+    }
+
+    private void StopRefreshTimer()
+    {
+        _isTimerRunning = false;
+        _cts?.Cancel();
+        _refreshTimer?.Dispose();
+        _cts?.Dispose();
+    }
+
+    // 🔹 Останавливаем таймер при уничтожении компонента
+    public void Dispose()
+    {
+        StopRefreshTimer();
+    }
+}

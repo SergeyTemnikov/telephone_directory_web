@@ -1,0 +1,122 @@
+﻿@using PhoneDirectoryBlazor.Models
+@using PhoneDirectoryBlazor.Services.Api
+@using MudBlazor
+@inject IAdminClient AdminClient
+@inject ISnackbar Snackbar
+
+<Modal IsVisible="@IsVisible" IsVisibleChanged="OnIsVisibleChanged">
+    <MudPaper Class="pa-4">
+        <MudText Typo="Typo.h6">@Title</MudText>
+
+        <MudForm @ref="_form" Class="mt-3">
+            <MudTextField @bind-Value="editName" Label="Название" For="@(() => editName)" Required="true" />
+
+            <MudSelect T="int?" Label="Родитель"
+                       @bind-Value="selectedParentId"
+                       Clearable="true"
+                       Searchable="true"
+                       PopoverClass="my-dept-popover">
+                <MudSelectItem T="int?" Value="null">— Нет родителя —</MudSelectItem>
+                @foreach (var d in Departments ?? Enumerable.Empty<DepartmentViewModel>())
+                {
+                    if (Model?.Id != null && d.Id == Model.Id) continue;
+                    <MudSelectItem T="int?" Value="@d.Id">@d.Name (@d.Id)</MudSelectItem>
+                }
+            </MudSelect>
+
+            <div class="d-flex justify-end gap-2 mt-4">
+                <MudButton Variant="Variant.Text" OnClick="Cancel">Отмена</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveAsync" Disabled="@_saving">Сохранить</MudButton>
+            </div>
+        </MudForm>
+    </MudPaper>
+</Modal>
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public EventCallback<bool> IsVisibleChanged { get; set; }
+    [Parameter] public DepartmentViewModel? Model { get; set; }
+    [Parameter] public List<DepartmentViewModel>? Departments { get; set; }
+    [Parameter] public EventCallback<bool> OnSaved { get; set; }
+
+    private MudForm? _form;
+    private string? editName;
+    private int? selectedParentId;
+    private bool _saving;
+
+    private string Title => (Model?.Id == null || Model.Id == 0) ? "Создать отдел" : "Редактировать отдел";
+
+    protected override void OnParametersSet()
+    {
+        editName = Model?.Name ?? string.Empty;
+        selectedParentId = Model?.ParentId;
+    }
+
+    private async Task SaveAsync()
+    {
+        await (_form?.ValidateAsync() ?? Task.CompletedTask);
+
+        if (_form != null && !_form.IsValid)
+            return;
+
+        if (string.IsNullOrWhiteSpace(editName))
+        {
+            Snackbar.Add("Введите название отдела", Severity.Warning);
+            return;
+        }
+
+        if (Model?.Id != null && selectedParentId == Model.Id)
+        {
+            Snackbar.Add("Нельзя выбрать отдел в качестве собственного родителя", Severity.Warning);
+            return;
+        }
+
+        _saving = true;
+        try
+        {
+            if (Model == null || Model.Id == null || Model.Id == 0)
+            {
+                var req = new CreateDepartmentRequest { Name = editName, Parent_department_id = selectedParentId };
+                await AdminClient.DepartmentsPostAsync(req);
+            }
+            else
+            {
+                var req = new UpdateDepartmentRequest { Name = editName, Parent_department_id = selectedParentId };
+                await AdminClient.DepartmentsPutAsync(Model.Id.Value, req);
+            }
+
+            await OnSaved.InvokeAsync(true);
+            await CloseModalAsync();
+        }
+        catch (ApiException aex)
+        {
+            Snackbar.Add($"Ошибка API: {aex.Message}", Severity.Error);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Ошибка: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private async Task Cancel()
+    {
+        await OnSaved.InvokeAsync(false);
+        await CloseModalAsync();
+    }
+
+    private async Task CloseModalAsync()
+    {
+        IsVisible = false;
+        await IsVisibleChanged.InvokeAsync(IsVisible);
+    }
+
+    private Task OnIsVisibleChanged(bool visible)
+    {
+        if (!visible) OnSaved.InvokeAsync(false);
+        return Task.CompletedTask;
+    }
+}

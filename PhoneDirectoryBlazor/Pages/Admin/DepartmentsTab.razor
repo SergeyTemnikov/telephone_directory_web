@@ -1,0 +1,130 @@
+﻿@page "/admin/departments"
+@using PhoneDirectoryBlazor.Models
+@using PhoneDirectoryBlazor.Services.Api
+@using MudBlazor
+@inject IAdminClient AdminClient
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<MudStack Spacing="2">
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OpenCreate">Добавить отдел</MudButton>
+
+    <MudTable Items="_items" Hover="true" Bordered="true" Striped="true">
+        <HeaderContent>
+            <MudTh>Id</MudTh>
+            <MudTh>Название</MudTh>
+            <MudTh>Родитель</MudTh>
+            <MudTh>Действия</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd DataLabel="Id">@context.Id</MudTd>
+            <MudTd DataLabel="Название">@context.Name</MudTd>
+            <MudTd DataLabel="Родитель">@GetParentName(context.ParentId)</MudTd>
+            <MudTd DataLabel="Действия">
+                <MudButton Size="Size.Small" Variant="Variant.Text" OnClick="(() => OpenEdit(context))">Редактировать</MudButton>
+                <MudButton Size="Size.Small" Color="Color.Error" Variant="Variant.Text" OnClick="(() => Delete(context))">Удалить</MudButton>
+            </MudTd>
+        </RowTemplate>
+
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[] { 10, 25, 50 }" />
+        </PagerContent>
+    </MudTable>
+</MudStack>
+
+<EditDepartmentDialog IsVisible="@isEditModalVisible"
+                      IsVisibleChanged="@(async v => isEditModalVisible = v)"
+                      Model="@editingModel"
+                      Departments="@_items"
+                      OnSaved="OnEditSaved" />
+
+@code {
+    private List<DepartmentViewModel> _items = new();
+    private bool isEditModalVisible;
+    private DepartmentViewModel? editingModel;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadItems();
+    }
+
+    private async Task LoadItems()
+    {
+        try
+        {
+            var resp = await AdminClient.DepartmentsGetAsync();
+            var data = resp?.Data ?? new List<DepartmentResponse>();
+
+            _items = data.Select(d => new DepartmentViewModel
+            {
+                Id = d.Id,
+                Name = d.Name,
+                ParentId = d.Parent != null ? d.Parent.Id : (int?)null
+            }).ToList();
+        }
+        catch (ApiException aex)
+        {
+            Snackbar.Add($"Ошибка API: {aex.Message}", Severity.Error);
+            _items = new List<DepartmentViewModel>();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Ошибка загрузки: {ex.Message}", Severity.Error);
+            _items = new List<DepartmentViewModel>();
+        }
+    }
+
+    private string GetParentName(int? parentId)
+    {
+        if (parentId == null)
+            return "-";
+
+        var p = _items.FirstOrDefault(x => x.Id == parentId);
+
+        return !string.IsNullOrWhiteSpace(p?.Name) ? p!.Name! : parentId.ToString() ?? "-";
+    }
+
+
+    private Task OpenCreate()
+    {
+        editingModel = new DepartmentViewModel();
+        isEditModalVisible = true;
+        return Task.CompletedTask;
+    }
+
+    private Task OpenEdit(DepartmentViewModel item)
+    {
+        editingModel = new DepartmentViewModel { Id = item.Id, Name = item.Name, ParentId = item.ParentId };
+        isEditModalVisible = true;
+        return Task.CompletedTask;
+    }
+
+    private async Task OnEditSaved(bool saved)
+    {
+        isEditModalVisible = false;
+        if (saved)
+        {
+            await LoadItems();
+            Snackbar.Add("Сохранено", Severity.Success);
+        }
+    }
+
+    private async Task Delete(DepartmentViewModel item)
+    {
+        bool? confirm = await DialogService.ShowMessageBoxAsync("Подтвердите", $"Удалить отдел «{item.Name}»?", yesText: "Да", noText: "Нет");
+        if (confirm == true)
+        {
+            try
+            {
+                await AdminClient.DepartmentsDeleteAsync(item.Id ?? 0);
+                await LoadItems();
+                Snackbar.Add("Удалено", Severity.Success);
+            }
+            catch (ApiException ex)
+            {
+                Snackbar.Add($"Ошибка удаления: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+}

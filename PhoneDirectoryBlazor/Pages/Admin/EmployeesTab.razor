@@ -1,0 +1,249 @@
+﻿@page "/admin/employees"
+@using PhoneDirectoryBlazor.Models
+@using PhoneDirectoryBlazor.Services.Api
+@using MudBlazor
+@inject IAdminClient AdminClient
+@inject IEmployeesClient EmployeesClient
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<MudStack Spacing="2">
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OpenCreate">Добавить сотрудника</MudButton>
+
+    <MudTable Items="_items" Hover="true" Bordered="true" Striped="true">
+        <HeaderContent>
+            <MudTh>Id</MudTh>
+            <MudTh>ФИО</MudTh>
+            <MudTh>Email</MudTh>
+            <MudTh>Отдел</MudTh>
+            <MudTh>Менеджер</MudTh>
+            <MudTh>Должности</MudTh>
+            <MudTh>Телефоны</MudTh>
+            <MudTh>Действия</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd DataLabel="Id">@context.Id</MudTd>
+            <MudTd DataLabel="ФИО">@context.FullName</MudTd>
+            <MudTd DataLabel="Email">@context.Email</MudTd>
+            <MudTd DataLabel="Отдел">@GetDepartmentName(context.DepartmentId)</MudTd>
+            <MudTd DataLabel="Менеджер">@context.ManagerDisplayName</MudTd>
+            <MudTd DataLabel="Должности">@string.Join(", ", context.Positions)</MudTd>
+            <MudTd DataLabel="Телефоны">@string.Join(", ", context.Phones)</MudTd>
+            <MudTd DataLabel="Действия">
+                <MudButton Size="Size.Small" Variant="Variant.Text" OnClick="(() => OpenEdit(context))">Редактировать</MudButton>
+                <MudButton Size="Size.Small" Color="Color.Error" Variant="Variant.Text" OnClick="(() => Delete(context))">Удалить</MudButton>
+            </MudTd>
+        </RowTemplate>
+
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[] { 10, 25, 50 }" />
+        </PagerContent>
+    </MudTable>
+</MudStack>
+
+<EditEmployeeDialog IsVisible="@isEditModalVisible"
+                    IsVisibleChanged="@(async v => isEditModalVisible = v)"
+                    Model="@editingModel"
+                    Departments="@_departments"
+                    Employees="@_items"
+                    OnSaved="OnEditSaved" />
+
+@code {
+    private List<EmployeeViewModel> _items = new();
+    private List<DepartmentViewModel> _departments = new();
+
+    private bool isEditModalVisible;
+    private EmployeeViewModel? editingModel;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDepartments();
+        await LoadItems();
+    }
+
+    private async Task LoadDepartments()
+    {
+        try
+        {
+            var resp = await AdminClient.DepartmentsGetAsync();
+            var data = resp?.Data ?? new List<DepartmentResponse>();
+            _departments = data.Select(d => new DepartmentViewModel
+            {
+                Id = d.Id,
+                Name = d.Name,
+                ParentId = d.Parent != null ? d.Parent.Id : (int?)null
+            }).ToList();
+        }
+        catch
+        {
+            _departments = new List<DepartmentViewModel>();
+        }
+    }
+
+    private async Task LoadItems()
+    {
+        try
+        {
+            var resp = await AdminClient.EmployeesGetAsync();
+            var data = resp?.Data ?? new List<EmployeeResponse>();
+
+            // Сначала мапим базовые поля
+            _items = data.Select(e => new EmployeeViewModel
+            {
+                Id = e.Id,
+                FullName = e.Full_name,
+                Email = e.Email,
+                DepartmentId = e.Department_id,
+                ManagerId = e.Manager_id,
+                Phones = new List<string>(),
+                Comment = e.Comment ?? string.Empty,
+                Address = e.Address ?? string.Empty,
+                Positions = new List<string>()
+            }).ToList();
+
+            var managerTasks = _items
+                .Where(it => it.ManagerId.HasValue)
+                .Select(async it =>
+                {
+                    try
+                    {
+                        var managerResp = await AdminClient.EmployeesGetAsync(it.ManagerId!.Value);
+                        var m = managerResp?.Data;
+                        if (m != null)
+                        {
+                            it.Manager = new EmployeeViewModel
+                            {
+                                Id = m.Id,
+                                FullName = m.Full_name,
+                                Email = m.Email,
+                                DepartmentId = m.Department_id,
+                                ManagerId = m.Manager_id,
+                                Comment = m.Comment ?? string.Empty,
+                                Address = m.Address ?? string.Empty,
+                                Positions = m.Position_ids != null ? m.Position_ids.Select(p => p.ToString()).ToList() : new List<string>()
+                            };
+                        }
+                    }
+                    catch
+                    {
+                        it.Manager = null;
+                    }
+                }).ToArray();
+
+            // Параллельно запрашиваем телефоны для каждого сотрудника (если есть Id)
+            var phoneTasks = _items
+                .Where(it => it.Id.HasValue)
+                .Select(async it =>
+                {
+                    try
+                    {
+                        var phonesResp = await EmployeesClient.PhonesAsync(it.Id!.Value);
+                        var phones = phonesResp?.Data?.Select(p => p.Phone_number).Where(s => !string.IsNullOrWhiteSpace(s)).ToList()
+                                     ?? new List<string>();
+                        it.Phones = phones;
+                    }
+                    catch
+                    {
+                        it.Phones = new List<string>();
+                    }
+                }).ToArray();
+
+            var positionsTasks = _items
+                .Where(it => it.Id.HasValue)
+                .Select(async it =>
+                {
+                    try
+                    {
+                        var posResp = await EmployeesClient.PositionsGetAsync(it.Id!.Value);
+                        var positions = posResp?.Data?.Select(p => p.Name).Where(s => !string.IsNullOrWhiteSpace(s)).ToList()
+                                        ?? new List<string>();
+                        it.Positions = positions;
+                    }
+                    catch
+                    {
+                        it.Positions = new List<string>();
+                    }
+                }).ToArray();
+
+            await Task.WhenAll(phoneTasks);
+            await Task.WhenAll(positionsTasks);
+        }
+        catch (ApiException aex)
+        {
+            Snackbar.Add($"Ошибка API: {aex.Message}", Severity.Error);
+            _items = new List<EmployeeViewModel>();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Ошибка загрузки: {ex.Message}", Severity.Error);
+            _items = new List<EmployeeViewModel>();
+        }
+    }
+
+    private string GetDepartmentName(int? departmentId)
+    {
+        if (departmentId == null) return "-";
+        var d = _departments.FirstOrDefault(x => x.Id == departmentId);
+        return !string.IsNullOrWhiteSpace(d?.Name) ? d!.Name! : departmentId.ToString() ?? "-";
+    }
+
+    private string GetManagerName(EmployeeViewModel? manager)
+    {
+        return manager == null ? "-" : manager.FullName;
+    }
+
+    private Task OpenCreate()
+    {
+        editingModel = new EmployeeViewModel();
+        isEditModalVisible = true;
+        return Task.CompletedTask;
+    }
+
+    private Task OpenEdit(EmployeeViewModel item)
+    {
+        // create shallow copy for editing
+        editingModel = new EmployeeViewModel
+        {
+            Id = item.Id,
+            FullName = item.FullName,
+            Email = item.Email,
+            DepartmentId = item.DepartmentId,
+            ManagerId = item.ManagerId,
+            Phones = new List<string>(item.Phones),
+            Address = item.Address,
+            Comment = item.Comment,
+            Positions = new List<string>(item.Positions)
+        };
+        isEditModalVisible = true;
+        return Task.CompletedTask;
+    }
+
+    private async Task OnEditSaved(bool saved)
+    {
+        isEditModalVisible = false;
+        if (saved)
+        {
+            await LoadItems();
+            Snackbar.Add("Сохранено", Severity.Success);
+        }
+    }
+
+    private async Task Delete(EmployeeViewModel item)
+    {
+        bool? confirm = await DialogService.ShowMessageBoxAsync("Подтвердите", $"Удалить сотрудника «{item.FullName}»?", yesText: "Да", noText: "Нет");
+        if (confirm == true)
+        {
+            try
+            {
+                await AdminClient.EmployeesDeleteAsync(item.Id ?? 0);
+                await LoadItems();
+                Snackbar.Add("Удалено", Severity.Success);
+            }
+            catch (ApiException ex)
+            {
+                Snackbar.Add($"Ошибка удаления: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+}

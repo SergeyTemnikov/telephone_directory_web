@@ -1,0 +1,171 @@
+﻿@using Microsoft.JSInterop
+@inject IJSRuntime JS
+
+<div id="@_elementId" style="width: @Width; height: @Height; border-radius: 8px; overflow: hidden;"></div>
+
+@if (ShowRetryButton && !IsInitialized)
+{
+    <div class="mt-2">
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" OnClick="RetryInitAsync">
+            Повторить загрузку карты
+        </MudButton>
+    </div>
+}
+
+@code {
+    [Parameter] public string ApiKey { get; set; } = "";
+    [Parameter] public double Lat { get; set; } = 55.75;
+    [Parameter] public double Lon { get; set; } = 37.62;
+    [Parameter] public int Zoom { get; set; } = 15;
+    [Parameter] public string Width { get; set; } = "100%";
+    [Parameter] public string Height { get; set; } = "300px";
+
+    [Parameter] public EventCallback<MarkerClickEventArgs> OnMarkerClicked { get; set; }
+    [Parameter] public EventCallback OnMapReady { get; set; }
+
+    private string _elementId = "yandex-map-" + Guid.NewGuid().ToString("N");
+    private bool _isInitialized;
+    private bool _showRetryButton;
+    private DotNetObjectReference<YandexMap>? _dotNetRef;
+
+    public bool IsInitialized => _isInitialized;
+    public bool ShowRetryButton => _showRetryButton;
+
+    protected override void OnInitialized()
+    {
+        _dotNetRef = DotNetObjectReference.Create(this);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || _isInitialized) return;
+        if (string.IsNullOrWhiteSpace(ApiKey)) return;
+
+        await TryInitMapAsync();
+    }
+
+    private async Task TryInitMapAsync()
+    {
+        _showRetryButton = false;
+
+        try
+        {
+            await JS.InvokeVoidAsync("initYandexMap", _elementId, ApiKey, Lat, Lon, Zoom, _dotNetRef);
+            _isInitialized = true;
+
+            if (OnMapReady.HasDelegate)
+            {
+                await OnMapReady.InvokeAsync();
+            }
+        }
+        catch (JSException ex)
+        {
+            Console.Error.WriteLine($"❌ Yandex map init error: {ex.Message}");
+            _showRetryButton = true;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"❌ Unexpected error: {ex}");
+            _showRetryButton = true;
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// Установить или обновить метку на карте
+    /// </summary>
+    public async Task SetMarkerAsync(double lat, double lon, MarkerOptions? options = null)
+    {
+        if (!_isInitialized) return;
+
+        await JS.InvokeVoidAsync("setYandexMarker", _elementId, lat, lon, options?.ToJsObject());
+    }
+
+    /// <summary>
+    /// Геокодировать адрес и установить метку
+    /// </summary>
+    public async Task<bool> SetMarkerByAddressAsync(string address, MarkerOptions? options = null)
+    {
+        if (!_isInitialized || string.IsNullOrWhiteSpace(address)) return false;
+
+        var coords = await JS.InvokeAsync<GeocodeResult?>("geocodeAddress", address, ApiKey);
+        if (coords == null) return false;
+
+        await SetMarkerAsync(coords.Lat, coords.Lon, options);
+        return true;
+    }
+
+    /// <summary>
+    /// Обработчик клика по метке (вызывается из JS)
+    /// </summary>
+    [JSInvokable]
+    public async Task OnMarkerClickedAsync(object? payload)
+    {
+        if (OnMarkerClicked.HasDelegate)
+        {
+            await OnMarkerClicked.InvokeAsync(new MarkerClickEventArgs { Payload = payload });
+        }
+    }
+
+    /// <summary>
+    /// Удалить карту и освободить ресурсы
+    /// </summary>
+    public async Task DestroyAsync()
+    {
+        if (!_isInitialized) return;
+
+        await JS.InvokeVoidAsync("destroyYandexMap", _elementId);
+        _isInitialized = false;
+    }
+
+    private async Task RetryInitAsync()
+    {
+        if (_isInitialized) return;
+        await Task.Delay(200);
+        await TryInitMapAsync();
+    }
+
+    protected void Dispose()
+    {
+        _dotNetRef?.Dispose();
+    }
+
+    // 🔹 Вспомогательные классы
+    public class MarkerOptions
+    {
+        public string? Label { get; set; }
+        public string? Hint { get; set; }
+        public string? Balloon { get; set; }
+        public string? Url { get; set; }
+        public string? Target { get; set; } = "_blank";
+        public string? Preset { get; set; } = "islands#redCircleDotIcon";
+        public bool Draggable { get; set; } = false;
+        public int? Zoom { get; set; }
+        public object? Payload { get; set; }
+
+        public object ToJsObject() => new
+        {
+            label = Label,
+            hint = Hint,
+            balloon = Balloon,
+            url = Url,
+            target = Target,
+            preset = Preset,
+            draggable = Draggable,
+            zoom = Zoom,
+            onClickPayload = Payload
+        };
+    }
+
+    public class MarkerClickEventArgs : EventArgs
+    {
+        public object? Payload { get; set; }
+    }
+
+    public class GeocodeResult
+    {
+        public double Lat { get; set; }
+        public double Lon { get; set; }
+    }
+}

@@ -1,0 +1,175 @@
+﻿@inject NavigationManager Nav
+@using PhoneDirectoryBlazor.Pages
+@using PhoneDirectoryBlazor.Services.Api
+@inject IJSRuntime JS
+@using Microsoft.AspNetCore.Components
+
+<MudCard Class="@($"employee-card {(_isMobile ? "compact" : "")}")" Id="@($"emp-{Employee.Id}")">
+    @if (_isMobile)
+    {
+        <MudCardHeader Class="employee-card-header py-2 px-3">
+            <CardHeaderContent>
+                <MudText Typo="Typo.subtitle1" Class="clickable-title" @onclick="OpenDetails">
+                    @Employee.FullName
+                </MudText>
+                <MudText Typo="Typo.caption" Color="Color.Secondary">@DepartmentName</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+
+        <MudCardContent Class="py-2 px-3">
+            @if (Employee.Positions?.Any() == true)
+            {
+                <div class="card-row compact-row">
+                    <span class="label">Должность:</span>
+                    <span>@string.Join(", ", Employee.Positions)</span>
+                </div>
+            }
+
+            @if (Employee.Phones?.Any() == true)
+            {
+                <div class="card-row compact-row">
+                    <span class="label">Телефон:</span>
+                    <span>@((MarkupString)string.Join(", ", Employee.Phones.Select(p => $"<a href=\"tel:{p}\">{p}</a>")))</span>
+                </div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(Employee.Email))
+            {
+                <div class="card-row compact-row">
+                    <span class="label">Почта:</span>
+                    <span><a href="mailto:@Employee.Email">@Employee.Email</a></span>
+                </div>
+            }
+        </MudCardContent>
+    }
+    else
+    {
+        <MudCardHeader Class="employee-card-header">
+            <CardHeaderContent>
+                <MudText Typo="Typo.h6" Class="clickable-title" @onclick="OpenDetails" Style="cursor:pointer; text-decoration:underline;">
+                    @Employee.FullName
+                </MudText>
+                <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@DepartmentName</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+
+        <MudCardContent>
+            <div class="card-row"><b>Должность:</b> @string.Join(", ", Employee.Positions ?? new())</div>
+
+            <div class="card-row">
+                <b>Телефон:</b>
+                @if (Employee.Phones?.Any() == true)
+                {
+                    @((MarkupString)string.Join(", ", Employee.Phones.Select(p => $"<a href=\"tel:{p}\">{p}</a>")))
+                }
+                else
+                {
+                    <span>-</span>
+                }
+            </div>
+
+            <div class="card-row">
+                <b>Email:</b>
+                @if (!string.IsNullOrWhiteSpace(Employee.Email))
+                {
+                    <a href="mailto:@Employee.Email">@Employee.Email</a>
+                }
+                else
+                {
+                    <span>-</span>
+                }
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Employee.Address))
+            {
+                <div class="card-row"><b>Адрес:</b> <a target="_blank" href="@GetYandexMapsLink(Employee.Address)">@Employee.Address</a></div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(Employee.Comment))
+            {
+                <div class="card-row"><b>Комментарий:</b> @Employee.Comment</div>
+            }
+        </MudCardContent>
+
+        <MudCardActions>
+            <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="@ToggleDetails">
+                @(_showDetails ? "Свернуть" : "Подробнее")
+            </MudButton>
+        </MudCardActions>
+
+        @if (_showDetails)
+        {
+            <MudDivider />
+            <MudCardContent>
+                <MudText Typo="Typo.caption">ID: @Employee.Id</MudText>
+                <MudText Typo="Typo.body2">
+                    <b>Руководитель:</b>
+                    @if (Employee.Manager != null)
+                    {
+                        <a href="#" @onclick="(() => RaiseShowEmployee(Employee.Manager))">@Employee.Manager.FullName</a>
+                    }
+                    else
+                    {
+                        <span>-</span>
+                    }
+                </MudText>
+
+                <MudText Typo="Typo.body2">
+                    <b>Подчинённые:</b>
+                    @if (Employee.Subordinates?.Any() == true)
+                    {
+                        @foreach (var s in Employee.Subordinates)
+                        {
+                            <div><a href="#" @onclick="(() => RaiseShowEmployee(s))">@s.FullName</a></div>
+                        }
+                    }
+                    else
+                    {
+                        <span>-</span>
+                    }
+                </MudText>
+            </MudCardContent>
+        }
+    }
+</MudCard>
+
+@code {
+    [Parameter] public EmployeeViewModel Employee { get; set; } = default!;
+    [Parameter] public Dictionary<int, string> Departments { get; set; } = new();
+    [Parameter] public EventCallback<EmployeeViewModel> OnShowEmployee { get; set; }
+
+    private bool _showDetails = false;
+    private bool _isMobile = false;
+
+    private string DepartmentName =>
+        Employee.DepartmentId.HasValue && Departments.TryGetValue(Employee.DepartmentId.Value, out var n) ? n : "-";
+
+    private void ToggleDetails() => _showDetails = !_showDetails;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _isMobile = await JS.InvokeAsync<bool>("eval", "window.innerWidth < 768");
+            StateHasChanged();
+        }
+    }
+
+    private Task RaiseShowEmployee(EmployeeViewModel? e = null)
+    {
+        var target = e ?? Employee;
+        return OnShowEmployee.InvokeAsync(target);
+    }
+
+    private void OpenDetails()
+    {
+        if (Employee?.Id != null)
+            Nav.NavigateTo($"/employee/{Employee.Id}");
+    }
+
+    private string GetYandexMapsLink(string address)
+    {
+        var q = System.Net.WebUtility.UrlEncode(address);
+        return $"https://yandex.ru/maps/?whatshere[point]=&text={q}";
+    }
+}

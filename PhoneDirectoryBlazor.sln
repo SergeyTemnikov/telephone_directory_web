@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36915.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhoneDirectoryBlazor", "PhoneDirectoryBlazor\PhoneDirectoryBlazor.csproj", "{429C90DF-140D-4BDB-970B-B9893BFAA319}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{429C90DF-140D-4BDB-970B-B9893BFAA319}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{429C90DF-140D-4BDB-970B-B9893BFAA319}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{429C90DF-140D-4BDB-970B-B9893BFAA319}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{429C90DF-140D-4BDB-970B-B9893BFAA319}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AF6EE15C-BF96-41D3-89F7-82A9A1ABFA81}
+	EndGlobalSection
+EndGlobal

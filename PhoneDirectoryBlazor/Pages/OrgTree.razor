@@ -1,0 +1,270 @@
+﻿@page "/organization/employees"
+@inject PhoneDirectoryBlazor.Services.Api.IOrganizationClient OrganizationClient
+@inject ISnackbar Snackbar
+
+<MudPaper Class="pa-4">
+    <div class="search-controls d-flex flex-column flex-md-row align-center justify-space-between mb-3 gap-2">
+        <MudTextField @bind-Value="_search"
+                      Placeholder="Поиск"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      Immediate="true"
+                      OnImmediateValueChanged="OnSearchChanged"
+                      Class="search-field w-100 w-md-auto" />
+
+        <div class="d-flex gap-2 w-100 w-md-auto justify-md-end action-buttons">
+            <MudButton Variant="Variant.Outlined"
+                       Size="Size.Small"
+                       OnClick="CollapseAll"
+                       Class="flex-grow-1 flex-md-grow-0">
+                Свернуть всё
+            </MudButton>
+            <MudButton Variant="Variant.Outlined"
+                       Size="Size.Small"
+                       OnClick="ExpandAll"
+                       Class="flex-grow-1 flex-md-grow-0">
+                Развернуть всё
+            </MudButton>
+        </div>
+    </div>
+
+    @if (_loading)
+    {
+        <div class="d-flex justify-center pa-6">
+            <MudProgressCircular Indeterminate="true" Size="Size.Large" />
+        </div>
+    }
+    else if (_error != null)
+    {
+        <MudAlert Severity="Severity.Error">@_error</MudAlert>
+    }
+    else
+    {
+        <div class="ladder-root">
+            @foreach (var dept in _deptRoots)
+            {
+                @RenderDepartmentRazor(dept, 0)
+            }
+        </div>
+    }
+</MudPaper>
+
+@code {
+    private bool _loading = true;
+    private string? _error;
+    private string _search = string.Empty;
+
+    private List<DepartmentNode> _deptRoots = new();
+    private Dictionary<int, DepartmentNode> _deptById = new();
+    private Dictionary<int, string> _departmentsLookup = new();
+    private List<EmployeeViewModel> _employees = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTreeAsync();
+    }
+
+    private async Task LoadTreeAsync()
+    {
+        _loading = true;
+        _error = null;
+
+        try
+        {
+            var resp = await OrganizationClient.TreeAsync();
+            if (resp?.Data == null)
+                throw new Exception("В ответе отсутствует поле Data");
+
+            var data = resp.Data;
+
+            var departments = data.Departments ?? new System.Collections.Generic.List<PhoneDirectoryBlazor.Services.Api.DepartmentFlatDTO>();
+            var employees = data.Employees ?? new System.Collections.Generic.List<PhoneDirectoryBlazor.Services.Api.EmployeeFullDTO>();
+
+            // словарь отделов для быстрого доступа
+            _departmentsLookup = departments
+                .Where(d => d.Id.HasValue)
+                .ToDictionary(d => d.Id!.Value, d => d.Name ?? $"Dept {d.Id}");
+
+            // строим узлы отделов (DepartmentNode содержит Children)
+            _deptById.Clear();
+            foreach (var d in departments.Where(x => x.Id.HasValue))
+            {
+                var id = d.Id!.Value;
+                var node = new DepartmentNode
+                {
+                    Id = id,
+                    Name = d.Name ?? $"Dept {id}",
+                    ParentId = d.Parent_department_id, // подстраиваюсь под возможное имя поля
+                    IsCollapsed = false
+                };
+                _deptById[id] = node;
+            }
+
+            // связываем в дерево
+            _deptRoots = new List<DepartmentNode>();
+            foreach (var node in _deptById.Values)
+            {
+                if (node.ParentId.HasValue && _deptById.TryGetValue(node.ParentId.Value, out var parent))
+                {
+                    parent.Children.Add(node);
+                }
+                else
+                {
+                    _deptRoots.Add(node);
+                }
+            }
+
+            // маппим сотрудников в удобную модель
+            _employees = employees.Select(e => new EmployeeViewModel
+            {
+                Id = e.Id,
+                FullName = e.Full_name ?? $"{e.Full_name}".Trim(),
+                Email = e.Email ?? string.Empty,
+                Positions = e.Positions?.Select(p => p.Name).Where(n => !string.IsNullOrWhiteSpace(n)).ToList() ?? new(),
+                DepartmentId = e.Department_id,
+                Phones = e.Phones?.Select(p => p.Phone_number ?? string.Empty).Where(n => !string.IsNullOrWhiteSpace(n)).ToList() ?? new(),
+                Address = e.Address ?? string.Empty,
+                Comment = e.Comment ?? string.Empty,
+                ManagerId = e.Manager_id
+            }).ToList();
+
+            // привязываем сотрудников к отделам
+            foreach (var emp in _employees)
+            {
+                if (emp.DepartmentId.HasValue && _deptById.TryGetValue(emp.DepartmentId.Value, out var deptNode))
+                    deptNode.Employees.Add(emp);
+                else
+                    _deptRoots.FirstOrDefault()?.Employees.Add(emp);
+            }
+
+            var dict = _employees.Where(e => e.Id.HasValue).ToDictionary(e => e.Id!.Value);
+
+            foreach (var emp in _employees)
+            {
+                if (emp.ManagerId.HasValue && dict.TryGetValue(emp.ManagerId.Value, out var mgr))
+                {
+                    emp.Manager = mgr;
+                    mgr.Subordinates.Add(emp);
+                }
+            }
+
+            // сортировки: корни по имени, сотрудники по ФИО
+            _deptRoots = _deptRoots.OrderBy(d => d.Name).ToList();
+            foreach (var node in _deptById.Values)
+            {
+                node.Children = node.Children.OrderBy(c => c.Name).ToList();
+                node.Employees = node.Employees.OrderBy(e => e.FullName).ToList();
+            }
+        }
+        catch (ApiException aex)
+        {
+            _error = $"Ошибка API: {aex.Message}";
+            Snackbar.Add(_error, Severity.Error);
+        }
+        catch (Exception ex)
+        {
+            _error = $"Не удалось загрузить структуру: {ex.Message}";
+            Snackbar.Add(_error, Severity.Error);
+        }
+        finally
+        {
+            _loading = false;
+            StateHasChanged();
+        }
+    }
+
+    List<EmployeeViewModel> GetManagerChain(EmployeeViewModel start)
+    {
+        var chain = new List<EmployeeViewModel>();
+        var seen = new HashSet<int>();
+        var cur = start;
+        while (cur.Manager != null)
+        {
+            var id = cur.Manager.Id ?? -1;
+            if (id != -1 && !seen.Add(id))
+            {
+                // цикл обнаружен
+                break;
+            }
+            chain.Add(cur.Manager);
+            cur = cur.Manager;
+        }
+        return chain;
+    }
+
+
+    // Razor-рендеринг (удобнее и безопаснее)
+    private RenderFragment RenderDepartmentRazor(DepartmentNode dept, int level) => @<div class="ladder-department level-@level @(dept.IsCollapsed ? "collapsed" : "")">
+    <div class="dept-header d-flex align-center justify-space-between">
+        <div class="d-flex align-center gap-2">
+            <MudText Typo="Typo.h6" Class="dept-header-name">@dept.Name</MudText>
+            <MudText Typo="Typo.caption" Color="Color.Secondary">@($"Сотрудников: {dept.Employees.Count}")</MudText>
+        </div>
+
+        <div class="d-flex gap-1">
+            @if (dept.IsCollapsed) {
+            <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowUp" Color="Color.Default" Size="Size.Small" OnClick="@(() => ToggleCollapse(dept))" Title="Свернуть/Развернуть" />
+                        } else
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowDown" Color="Color.Default" Size="Size.Small" OnClick="@(() => ToggleCollapse(dept))" Title="Свернуть/Развернуть" />
+            }
+        </div>
+    </div>
+
+@if (!dept.IsCollapsed)
+{
+        <div class="dept-employees">
+            @foreach (var emp in dept.Employees.Where(Filter))
+            {
+                <div class="emp-card-wrap">
+                    <EmployeeCard Employee="emp" Departments="_departmentsLookup" />
+                </div>
+            }
+        </div>
+
+    @if (dept.Children?.Count > 0)
+    {
+            <div class="dept-children">
+                @foreach (var child in dept.Children)
+                {
+                    @RenderDepartmentRazor(child, level + 1)
+                }
+            </div>
+    }
+}
+</div>;
+
+private void ToggleCollapse(DepartmentNode dept)
+{
+    dept.IsCollapsed = !dept.IsCollapsed;
+    StateHasChanged();
+}
+
+private void CollapseAll()
+{
+    foreach (var n in _deptById.Values) n.IsCollapsed = true;
+    StateHasChanged();
+}
+
+private void ExpandAll()
+{
+    foreach (var n in _deptById.Values) n.IsCollapsed = false;
+    StateHasChanged();
+}
+
+private bool Filter(EmployeeViewModel e)
+{
+    if (string.IsNullOrWhiteSpace(_search)) return true;
+    var s = _search.Trim().ToLowerInvariant();
+    var positions = string.Join(" ", e.Positions ?? new List<string>());
+    var phones = string.Join(" ", e.Phones ?? new List<string>());
+    var deptName = e.DepartmentId.HasValue && _departmentsLookup.TryGetValue(e.DepartmentId.Value, out var n) ? n : string.Empty;
+    return (e.FullName + " " + e.Email + " " + positions + " " + phones + " " + deptName).ToLowerInvariant().Contains(s);
+}
+
+private void OnSearchChanged(string value)
+{
+    _search = value;
+    StateHasChanged();
+}
+}

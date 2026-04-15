@@ -1,0 +1,310 @@
+﻿@page "/employee/{id:int}"
+@using System.Text.Json
+@inject PhoneDirectoryBlazor.Services.Api.IOrganizationClient OrganizationClient
+@inject NavigationManager Nav
+@inject ISnackbar Snackbar
+@inject IJSRuntime JS
+@inject IConfiguration Configuration
+
+<MudPaper Class="pa-6">
+    <div class="d-flex align-center justify-space-between mb-4">
+        <MudText Typo="Typo.h4">Детали сотрудника</MudText>
+        <div class="d-flex gap-2">
+            <MudButton Variant="Variant.Outlined" Color="Color.Default" OnClick="Back">Назад</MudButton>
+            @if (_employee != null && _employee.Phones?.Any() == true)
+            {
+                <MudMenu Icon="@Icons.Material.Filled.Call" Color="Color.Primary" Dense="true">
+                    @foreach (var ph in _employee.Phones)
+                    {
+                        <MudMenuItem OnClick="@(()=> CallPhone(ph))">@ph</MudMenuItem>
+                    }
+                </MudMenu>
+            }
+            @if (!string.IsNullOrWhiteSpace(_employee?.Email))
+            {
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@SendEmail">Написать</MudButton>
+            }
+        </div>
+    </div>
+
+    @if (_loading)
+    {
+        <div class="d-flex justify-center pa-6">
+            <MudProgressCircular Indeterminate="true" Size="Size.Large" />
+        </div>
+    }
+    else if (_error != null)
+    {
+        <MudAlert Severity="Severity.Error">@_error</MudAlert>
+    }
+    else if (_employee != null)
+    {
+        <MudGrid>
+            <MudItem xs="12" md="8">
+                <MudPaper Class="pa-4">
+                    <MudText Typo="Typo.h5">@_employee.FullName</MudText>
+                    <MudText Typo="Typo.subtitle1" Color="Color.Secondary">@GetDepartmentName(_employee.DepartmentId)</MudText>
+
+                    <MudDivider Class="my-3" />
+
+                    <div class="mb-3">
+                        <MudText Typo="Typo.subtitle2">Должность</MudText>
+                        <MudText>@( _employee.Positions?.Any() == true ? string.Join(", ", _employee.Positions) : "-" )</MudText>
+                    </div>
+
+                    <div class="mb-3">
+                        <MudText Typo="Typo.subtitle2">Контакты</MudText>
+                        <div class="d-flex flex-column gap-1">
+                            <div>
+                                <b>Телефоны:</b>
+                                @if (_employee.Phones?.Any() == true)
+                                {
+                                    @foreach (var ph in _employee.Phones)
+                                    {
+                                        <div><a href="tel:@ph">@ph</a></div>
+                                    }
+                                }
+                                else { <span>-</span> }
+                            </div>
+
+                            <div>
+                                <b>Email:</b>
+                                @if (!string.IsNullOrWhiteSpace(_employee.Email))
+                                {
+                                    <a href="mailto:@_employee.Email">@_employee.Email</a>
+                                }
+                                else { <span>-</span> }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <MudText Typo="Typo.subtitle2">Руководитель</MudText>
+                        @if (_employee.Manager != null)
+                        {
+                            <div>
+                                <a href="#" @onclick="(() => ShowEmployee(_employee.Manager))">@_employee.Manager.FullName</a>
+                                <div class="muted">ID: @_employee.Manager.Id</div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div>-</div>
+                        }
+                    </div>
+
+                    <div class="mb-3">
+                        <MudText Typo="Typo.subtitle2">Подчинённые</MudText>
+                        @if (_employee.Subordinates?.Any() == true)
+                        {
+                            <MudList T="EmployeeViewModel" Dense="true">
+                                @foreach (var s in _employee.Subordinates)
+                                {
+                                    <MudListItem T="EmployeeViewModel">
+                                        <MudText>
+                                            <a href="#" @onclick="(() => ShowEmployee(s))">@s.FullName</a>
+                                        </MudText>
+                                        <MudText Typo="Typo.caption" Class="ml-2 muted">@GetDepartmentName(s.DepartmentId)</MudText>
+                                    </MudListItem>
+                                }
+                            </MudList>
+                        }
+                        else
+                        {
+                            <div>-</div>
+                        }
+                    </div>
+
+                    <div class="mb-3">
+                        <MudText Typo="Typo.subtitle2">Комментарий</MudText>
+                        <MudText>@(string.IsNullOrWhiteSpace(_employee.Comment) ? "-" : _employee.Comment)</MudText>
+                    </div>
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" md="4">
+                <MudPaper Class="pa-4">
+                    <MudText Typo="Typo.subtitle2">Информация</MudText>
+
+                    <div class="mb-2"><b>ID:</b> @_employee.Id</div>
+                    <div class="mb-2"><b>Отдел:</b> @GetDepartmentName(_employee.DepartmentId)</div>
+
+                    @if (!string.IsNullOrWhiteSpace(_employee?.Address))
+                    {
+                        <div class="mb-2">
+                            <MudText Typo="Typo.body2">@_employee.Address</MudText>
+                            <MudLink Href="@GetYandexMapsLink(_employee.Address)" Target="_blank" Typo="Typo.caption">
+                                Открыть в Яндекс.Картах ↗
+                            </MudLink>
+                        </div>
+
+                        <YandexMap @ref="_map"
+                                   ApiKey="@_apiKey"
+                                   Width="100%"
+                                   Height="300px"
+                                   OnMapReady="OnMapReadyAsync" />
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">Адрес не указан</MudText>
+                    }
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    }
+</MudPaper>
+
+@code {
+    [Parameter] public int id { get; set; }
+
+    private EmployeeViewModel? _employee;
+    private Dictionary<int, string> _departments = new();
+    private bool _loading = true;
+    private string? _error;
+
+    private YandexMap? _map;
+    private string _apiKey;
+
+    // локальные структуры для быстрого поиска
+    private Dictionary<int, EmployeeViewModel> _empById = new();
+    private Dictionary<int, DepartmentNode> _deptById = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEmployeeAsync();
+    }
+
+    protected override void OnInitialized()
+    {
+        _apiKey = Configuration["YandexMaps:ApiKey"] ?? "";
+    }
+
+    private async Task LoadEmployeeAsync()
+    {
+        _loading = true;
+        _error = null;
+
+        try
+        {
+            var resp = await OrganizationClient.TreeAsync();
+            var data = resp?.Data;
+            if (data == null) throw new Exception("Пустой ответ от сервера");
+
+            var departments = data.Departments ?? new List<PhoneDirectoryBlazor.Services.Api.DepartmentFlatDTO>();
+            var employees = data.Employees ?? new List<PhoneDirectoryBlazor.Services.Api.EmployeeFullDTO>();
+
+            // departments lookup
+            _departments = departments.Where(d => d.Id.HasValue).ToDictionary(d => d.Id!.Value, d => d.Name ?? $"Dept {d.Id}");
+
+            // build employees list and dict
+            var list = employees.Select(e => new EmployeeViewModel
+            {
+                Id = e.Id,
+                FullName = e.Full_name,
+                Email = e.Email ?? "",
+                Positions = e.Positions?.Select(p => p.Name).Where(n => !string.IsNullOrWhiteSpace(n)).ToList() ?? new(),
+                DepartmentId = e.Department_id,
+                Phones = e.Phones?.Select(p => p.Phone_number ?? "").Where(n => !string.IsNullOrWhiteSpace(n)).ToList() ?? new(),
+                Address = e.Address ?? "",
+                Comment = e.Comment ?? "",
+                ManagerId = e.Manager_id
+            }).ToList();
+
+            _empById = list.Where(x => x.Id.HasValue).ToDictionary(x => x.Id!.Value, x => x);
+
+            // build manager/subordinates links
+            foreach (var emp in _empById.Values)
+            {
+                if (emp.ManagerId.HasValue && _empById.TryGetValue(emp.ManagerId.Value, out var mgr))
+                {
+                    emp.Manager = mgr;
+                    mgr.Subordinates.Add(emp);
+                }
+            }
+
+            // find requested employee
+            if (!_empById.TryGetValue(id, out var target))
+            {
+                _error = "Сотрудник не найден";
+                return;
+            }
+            _employee = target;
+        }
+        catch (ApiException aex)
+        {
+            _error = $"Ошибка API: {aex.Message}";
+            Snackbar.Add(_error, Severity.Error);
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+            Snackbar.Add(_error, Severity.Error);
+        }
+        finally
+        {
+            _loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void Back() => Nav.NavigateTo("/organization/employees");
+
+    private void CallPhone(string phone)
+    {
+        // на мобильных откроется приложение звонка
+        Nav.NavigateTo($"tel:{phone}", forceLoad: true);
+    }
+
+    private void SendEmail()
+    {
+        if (!string.IsNullOrWhiteSpace(_employee?.Email))
+            Nav.NavigateTo($"mailto:{_employee.Email}", forceLoad: true);
+    }
+
+    private string GetDepartmentName(int? id)
+    {
+        if (id == null) return "-";
+        return _departments.TryGetValue(id.Value, out var n) ? n : "-";
+    }
+
+    private async Task OnMapReadyAsync()
+    {
+        if (_map == null || string.IsNullOrWhiteSpace(_employee?.Address)) return;
+
+        // 🔹 Формируем ссылку на Яндекс.Карты с адресом
+        var yandexMapsUrl = GetYandexMapsDirectLink(_employee.Address);
+
+        await _map.SetMarkerByAddressAsync(_employee.Address, new YandexMap.MarkerOptions
+        {
+            Label = _employee.FullName,
+            Hint = _employee.Address,
+            Balloon = $"<b>{_employee.FullName}</b><br/>{_employee.Address}",
+
+            // 🔹 Теперь при клике откроются Яндекс.Карты, а не профиль
+            Url = yandexMapsUrl,
+            Target = "_blank",  // Открыть в новой вкладке
+
+            Preset = "islands#blueCircleDotIcon",
+            Payload = new { employeeId = _employee.Id, address = _employee.Address }
+        });
+    }
+
+    // 🔹 Новый метод: прямая ссылка на Яндекс.Карты с адресом
+    private string GetYandexMapsDirectLink(string address)
+    {
+        var q = System.Net.WebUtility.UrlEncode(address);
+        // 🔹 Открывает карту с поиском по адресу и масштабом 15
+        return $"https://yandex.ru/maps/?text={q}&z=15&l=map";
+    }
+
+    private string GetYandexMapsLink(string address)
+    {
+        var q = System.Net.WebUtility.UrlEncode(address);
+        return $"https://yandex.ru/maps/?whatshere[point]=&text={q}";
+    }
+
+    private async Task ShowEmployee(EmployeeViewModel emp)
+    {
+        Nav.NavigateTo($"/employe/{emp.Id}");
+    }
+}

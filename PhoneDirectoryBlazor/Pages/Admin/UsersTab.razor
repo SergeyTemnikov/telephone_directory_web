@@ -1,0 +1,167 @@
+﻿@page "/admin/users"
+@inject IAdminClient AdminClient
+@inject IUsersClient UsersClient
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<MudStack Spacing="2">
+    <MudText Typo="Typo.h5">Пользователи</MudText>
+    
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OpenCreate">
+        <MudIcon Icon="@Icons.Material.Filled.PersonAdd" Class="mr-2" />
+        Добавить пользователя
+    </MudButton>
+
+    <MudTable Items="_items" Hover="true" Bordered="true" Striped="true">
+        <HeaderContent>
+            <MudTh>Id</MudTh>
+            <MudTh>Email</MudTh>
+            <MudTh>Статус</MudTh>
+            <MudTh>Дата окончания доступа</MudTh>
+            <MudTh>Роли</MudTh>
+            <MudTh>Действия</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Id">@context.Id</MudTd>
+            <MudTd DataLabel="Email">@context.Email</MudTd>
+            <MudTd DataLabel="Статус">
+                <MudChip T="bool" 
+                         Color="@(context.IsActive ? Color.Success : Color.Error)" 
+                         Size="Size.Small">
+                    @(context.IsActive ? "Активен" : "Неактивен")
+                </MudChip>
+            </MudTd>
+            <MudTd DataLabel="Дата окончания доступа">
+                @(context.EndDateOfAccess?.ToString("dd.MM.yyyy") ?? "—")
+            </MudTd>
+            <MudTd DataLabel="Роли">
+                @foreach (var role in context.Roles)
+                {
+                    <MudChip T="string" Size="Size.Small" Class="mr-1">@role.Name</MudChip>
+                }
+            </MudTd>
+            <MudTd DataLabel="Действия">
+                <MudButton Size="Size.Small" Variant="Variant.Text" OnClick="(() => OpenEdit(context))">
+                    Редактировать
+                </MudButton>
+                <MudButton Size="Size.Small" Color="Color.Error" Variant="Variant.Text" OnClick="(() => Delete(context))">
+                    Удалить
+                </MudButton>
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[] { 10, 25, 50 }" />
+        </PagerContent>
+    </MudTable>
+</MudStack>
+
+<EditUserDialog IsVisible="@isEditModalVisible"
+                IsVisibleChanged="@(async v => isEditModalVisible = v)"
+                Model="@editingModel"
+                OnSaved="OnEditSaved" />
+
+@code {
+    private List<UserViewModel> _items = new();
+    private bool isEditModalVisible;
+    private UserViewModel? editingModel;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadItems();
+    }
+
+    private async Task LoadItems()
+    {
+        try
+        {
+            var resp = await AdminClient.UsersGetAsync();
+            var data = resp?.Data ?? new List<UserResponse>();
+            
+            _items = data.Select(u => new UserViewModel
+            {
+                Id = u.Id,
+                Email = u.Email ?? string.Empty,
+                EndDateOfAccess = ParseApiDate(u.End_date_of_access),
+                IsActive = u.Is_active ?? false,
+                Roles = u.Roles?.Select(r => new RoleViewModel 
+                { 
+                    Id = r.Id, 
+                    Name = r.Name ?? string.Empty 
+                }).ToList() ?? new List<RoleViewModel>()
+            }).ToList();
+        }
+        catch (ApiException aex)
+        {
+            Snackbar.Add($"Ошибка API: {aex.Message}", Severity.Error);
+            _items = new List<UserViewModel>();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Ошибка загрузки: {ex.Message}", Severity.Error);
+            _items = new List<UserViewModel>();
+        }
+    }
+
+    private Task OpenCreate()
+    {
+        editingModel = new UserViewModel();
+        isEditModalVisible = true;
+        return Task.CompletedTask;
+    }
+
+    private Task OpenEdit(UserViewModel item)
+    {
+        editingModel = new UserViewModel
+        {
+            Id = item.Id,
+            Email = item.Email,
+            EndDateOfAccess = item.EndDateOfAccess,
+            IsActive = item.IsActive,
+            Roles = item.Roles.Select(r => new RoleViewModel { Id = r.Id, Name = r.Name }).ToList()
+        };
+        isEditModalVisible = true;
+        return Task.CompletedTask;
+    }
+
+    private async Task OnEditSaved(bool saved)
+    {
+        isEditModalVisible = false;
+        if (saved)
+        {
+            await LoadItems();
+            Snackbar.Add("Сохранено", Severity.Success);
+        }
+    }
+
+    private async Task Delete(UserViewModel item)
+    {
+        bool? confirm = await DialogService.ShowMessageBoxAsync(
+            "Подтвердите", 
+            $"Удалить пользователя «{item.Email}»?", 
+            yesText: "Да", 
+            noText: "Нет");
+        
+        if (confirm == true)
+        {
+            try
+            {
+                if (item.Id.HasValue)
+                {
+                    await AdminClient.UsersDeleteAsync(item.Id.Value);
+                    await LoadItems();
+                    Snackbar.Add("Удалено", Severity.Success);
+                }
+            }
+            catch (ApiException ex)
+            {
+                Snackbar.Add($"Ошибка удаления: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+
+    public static DateTime? ParseApiDate(string? dateStr)
+    {
+        if (string.IsNullOrWhiteSpace(dateStr)) return null;
+        return DateTime.TryParse(dateStr, out var result) ? result : null;
+    }
+}
