@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "PhoneDirectoryBlazor",
   "resources": {
-    "hash": "sha256-IWD0GNuC2HQhFQ7hRtja+x5d9gzh+owD/r4P93x8B+g=",
+    "hash": "sha256-KRENwYppuRi+bS8EoNHFeLWhbOPeEQl9nO9IVlPkudY=",
     "jsModuleNative": {
       "dotnet.native.js": "sha256-NljIbpK/1KCj0+knpX8U77Rbl5kTtfFIuFjK7AuczEw="
     },
@@ -222,10 +222,10 @@
       "mscorlib.wasm": "sha256-oV7k+vcNqj7FS6Y/lMtdhVlq3myDH55/wVxmO4QPrw4=",
       "netstandard.wasm": "sha256-XMXMB0WW//vbNNgQiFAqYo7IJ2C4yQX590aoAbOtTB4=",
       "System.Private.CoreLib.wasm": "sha256-tuhzUgbFn7ji3yhMSxyBLHAps9h0RsFnq+8pUoizHiw=",
-      "PhoneDirectoryBlazor.wasm": "sha256-sRSUmNPHln37f9zoMCwv8AyUv2QokWzESolKFv3O7NQ="
+      "PhoneDirectoryBlazor.wasm": "sha256-9ZglYKiOucuZOG5Oswus/5m1C+8hgG7thgkXBJXoz2U="
     },
     "pdb": {
-      "PhoneDirectoryBlazor.pdb": "sha256-lb+DK0DAW7WXNpTRO0CpizhFl6x4lYBwBa7oujlDG5o="
+      "PhoneDirectoryBlazor.pdb": "sha256-MvSj9mHW88n7EBpn8AjiW26Q1fCd5NBqxJq05M2h1hs="
     }
   },
   "cacheBootResources": true,

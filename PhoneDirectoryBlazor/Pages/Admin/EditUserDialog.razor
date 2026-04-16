@@ -15,16 +15,11 @@
                           Type="InputType.Email"
                           HelperText="Например: user@company.com" />
 
-            @if (IsCreateMode)
-            {
-                <MudTextField @bind-Value="editPassword"
-                              Label="Пароль"
-                              For="@(() => editPassword)"
-                              Required="true"
-                              Type="InputType.Password"
-                              HelperText="Минимум 8 символов"
-                              Class="mt-2" />
-            }
+            <MudTextField @bind-Value="editPassword"
+                          Label="Пароль"
+                          Required="@(IsCreateMode)"
+                          HelperText="@(IsCreateMode ? "Минимум 8 символов" : "Оставьте пустым, чтобы не менять")"
+                          Type="InputType.Password" />
 
             <MudDatePicker Label="Дата окончания доступа"
                            Editable="true"
@@ -242,12 +237,20 @@
                     var req = new UpdateUserRequest
                     {
                         Email = editEmail,
+                        Password = string.IsNullOrWhiteSpace(editPassword) ? null : editPassword,
                         End_date_of_access = string.IsNullOrWhiteSpace(endDateForApi)
                             ? null
                             : endDateForApi
                     };
                     await AdminClient.UsersPutAsync(Model.Id.Value, req, _cts.Token);
-                    await UsersClient.StatusAsync(Model.Id.Value, new ToggleStatusRequest { Active = editIsActive }, _cts.Token);
+                    try
+                    {
+                        await UsersClient.StatusAsync(Model.Id.Value, new ToggleStatusRequest { Active = editIsActive }, _cts.Token);
+                    }
+                    catch (ApiException ex)
+                    {
+                        Snackbar.Add($"Статус не обновлён: {ex.Message}", Severity.Warning);
+                    }
 
                     await SyncRolesAsync(Model.Id.Value, roleIdsToSend);
                 }
@@ -379,7 +382,6 @@
 
     public void Dispose()
     {
-        _cts?.Cancel();
         _cts?.Dispose();
     }
 }

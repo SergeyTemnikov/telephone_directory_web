@@ -519,7 +519,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// Update user
         /// </summary>
         /// <remarks>
-        /// Partial update of user fields. Requires ADMIN role.
+        /// Partial update of user fields. Requires ADMIN role. Password field is optional; if provided, must be at least 8 characters.
         /// </remarks>
         /// <param name="id">User ID</param>
         /// <param name="request">Fields to update</param>
@@ -532,7 +532,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// Update user
         /// </summary>
         /// <remarks>
-        /// Partial update of user fields. Requires ADMIN role.
+        /// Partial update of user fields. Requires ADMIN role. Password field is optional; if provided, must be at least 8 characters.
         /// </remarks>
         /// <param name="id">User ID</param>
         /// <param name="request">Fields to update</param>
@@ -3798,7 +3798,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// Update user
         /// </summary>
         /// <remarks>
-        /// Partial update of user fields. Requires ADMIN role.
+        /// Partial update of user fields. Requires ADMIN role. Password field is optional; if provided, must be at least 8 characters.
         /// </remarks>
         /// <param name="id">User ID</param>
         /// <param name="request">Fields to update</param>
@@ -3814,7 +3814,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// Update user
         /// </summary>
         /// <remarks>
-        /// Partial update of user fields. Requires ADMIN role.
+        /// Partial update of user fields. Requires ADMIN role. Password field is optional; if provided, must be at least 8 characters.
         /// </remarks>
         /// <param name="id">User ID</param>
         /// <param name="request">Fields to update</param>
@@ -3930,6 +3930,16 @@ namespace PhoneDirectoryBlazor.Services.Api
                             throw new ApiException<Response133>("Conflict", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
+                        if (status_ == 422)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<Response134>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<Response134>("Validation failed", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
                         {
                             var responseData_ = response_.Content == null ? null : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
                             throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
@@ -4016,32 +4026,32 @@ namespace PhoneDirectoryBlazor.Services.Api
                         else
                         if (status_ == 401)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Response134>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<Response134>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
                             var objectResponse_ = await ReadObjectResponseAsync<Response135>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response135>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response135>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 404)
+                        if (status_ == 403)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response136>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response136>("Not Found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response136>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 404)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<Response137>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<Response137>("Not Found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         {
@@ -4207,7 +4217,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// <param name="department_id">Department ID</param>
         /// <returns>Employees retrieved successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<Response137> EmployeesAsync(int department_id);
+        System.Threading.Tasks.Task<Response138> EmployeesAsync(int department_id);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
@@ -4219,7 +4229,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// <param name="department_id">Department ID</param>
         /// <returns>Employees retrieved successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<Response137> EmployeesAsync(int department_id, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<Response138> EmployeesAsync(int department_id, System.Threading.CancellationToken cancellationToken);
 
     }
 
@@ -4280,7 +4290,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// <param name="department_id">Department ID</param>
         /// <returns>Employees retrieved successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<Response137> EmployeesAsync(int department_id)
+        public virtual System.Threading.Tasks.Task<Response138> EmployeesAsync(int department_id)
         {
             return EmployeesAsync(department_id, System.Threading.CancellationToken.None);
         }
@@ -4295,7 +4305,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// <param name="department_id">Department ID</param>
         /// <returns>Employees retrieved successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<Response137> EmployeesAsync(int department_id, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<Response138> EmployeesAsync(int department_id, System.Threading.CancellationToken cancellationToken)
         {
             if (department_id == null)
                 throw new System.ArgumentNullException("department_id");
@@ -4341,7 +4351,7 @@ namespace PhoneDirectoryBlazor.Services.Api
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Response137>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<Response138>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -4351,52 +4361,52 @@ namespace PhoneDirectoryBlazor.Services.Api
                         else
                         if (status_ == 400)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Response138>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<Response138>("Invalid department ID", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 401)
-                        {
                             var objectResponse_ = await ReadObjectResponseAsync<Response139>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response139>("Missing or invalid JWT token", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response139>("Invalid department ID", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 403)
+                        if (status_ == 401)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response140>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response140>("Insufficient permissions", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response140>("Missing or invalid JWT token", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 404)
+                        if (status_ == 403)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response141>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response141>("Department not found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response141>("Insufficient permissions", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 500)
+                        if (status_ == 404)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response142>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response142>("Internal server error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response142>("Department not found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<Response143>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<Response143>("Internal server error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         {
@@ -4563,7 +4573,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// <param name="department_id">Filter by department ID</param>
         /// <returns>Search results</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<Response143> SearchAsync(string query, int? department_id);
+        System.Threading.Tasks.Task<Response144> SearchAsync(string query, int? department_id);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
@@ -4576,7 +4586,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// <param name="department_id">Filter by department ID</param>
         /// <returns>Search results</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<Response143> SearchAsync(string query, int? department_id, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<Response144> SearchAsync(string query, int? department_id, System.Threading.CancellationToken cancellationToken);
 
         /// <summary>
         /// Get all phones for employee
@@ -4587,7 +4597,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// <param name="employee_id">Employee ID</param>
         /// <returns>Phones retrieved successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<Response144> PhonesAsync(int employee_id);
+        System.Threading.Tasks.Task<Response145> PhonesAsync(int employee_id);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
@@ -4599,7 +4609,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// <param name="employee_id">Employee ID</param>
         /// <returns>Phones retrieved successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<Response144> PhonesAsync(int employee_id, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<Response145> PhonesAsync(int employee_id, System.Threading.CancellationToken cancellationToken);
 
         /// <summary>
         /// Get positions for employee
@@ -4610,7 +4620,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// <param name="employee_id">Employee ID</param>
         /// <returns>Positions retrieved successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<Response145> PositionsGetAsync(int employee_id);
+        System.Threading.Tasks.Task<Response146> PositionsGetAsync(int employee_id);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
@@ -4622,7 +4632,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// <param name="employee_id">Employee ID</param>
         /// <returns>Positions retrieved successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<Response145> PositionsGetAsync(int employee_id, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<Response146> PositionsGetAsync(int employee_id, System.Threading.CancellationToken cancellationToken);
 
         /// <summary>
         /// Assign position to employee
@@ -4734,7 +4744,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// <param name="department_id">Filter by department ID</param>
         /// <returns>Search results</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<Response143> SearchAsync(string query, int? department_id)
+        public virtual System.Threading.Tasks.Task<Response144> SearchAsync(string query, int? department_id)
         {
             return SearchAsync(query, department_id, System.Threading.CancellationToken.None);
         }
@@ -4750,7 +4760,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// <param name="department_id">Filter by department ID</param>
         /// <returns>Search results</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<Response143> SearchAsync(string query, int? department_id, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<Response144> SearchAsync(string query, int? department_id, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -4801,7 +4811,7 @@ namespace PhoneDirectoryBlazor.Services.Api
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Response143>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<Response144>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -4811,42 +4821,42 @@ namespace PhoneDirectoryBlazor.Services.Api
                         else
                         if (status_ == 400)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Response146>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<Response146>("Invalid query parameters", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 401)
-                        {
                             var objectResponse_ = await ReadObjectResponseAsync<Response147>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response147>("Missing or invalid JWT token", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response147>("Invalid query parameters", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 403)
+                        if (status_ == 401)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response148>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response148>("Insufficient permissions", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response148>("Missing or invalid JWT token", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 500)
+                        if (status_ == 403)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response149>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response149>("Internal server error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response149>("Insufficient permissions", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<Response150>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<Response150>("Internal server error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         {
@@ -4877,7 +4887,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// <param name="employee_id">Employee ID</param>
         /// <returns>Phones retrieved successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<Response144> PhonesAsync(int employee_id)
+        public virtual System.Threading.Tasks.Task<Response145> PhonesAsync(int employee_id)
         {
             return PhonesAsync(employee_id, System.Threading.CancellationToken.None);
         }
@@ -4892,7 +4902,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// <param name="employee_id">Employee ID</param>
         /// <returns>Phones retrieved successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<Response144> PhonesAsync(int employee_id, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<Response145> PhonesAsync(int employee_id, System.Threading.CancellationToken cancellationToken)
         {
             if (employee_id == null)
                 throw new System.ArgumentNullException("employee_id");
@@ -4938,7 +4948,7 @@ namespace PhoneDirectoryBlazor.Services.Api
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Response144>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<Response145>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -4948,52 +4958,52 @@ namespace PhoneDirectoryBlazor.Services.Api
                         else
                         if (status_ == 400)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Response150>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<Response150>("Invalid employee ID", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 401)
-                        {
                             var objectResponse_ = await ReadObjectResponseAsync<Response151>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response151>("Missing or invalid JWT token", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response151>("Invalid employee ID", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 403)
+                        if (status_ == 401)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response152>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response152>("Insufficient permissions", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response152>("Missing or invalid JWT token", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 404)
+                        if (status_ == 403)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response153>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response153>("Employee not found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response153>("Insufficient permissions", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 500)
+                        if (status_ == 404)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response154>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response154>("Internal server error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response154>("Employee not found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<Response155>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<Response155>("Internal server error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         {
@@ -5024,7 +5034,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// <param name="employee_id">Employee ID</param>
         /// <returns>Positions retrieved successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<Response145> PositionsGetAsync(int employee_id)
+        public virtual System.Threading.Tasks.Task<Response146> PositionsGetAsync(int employee_id)
         {
             return PositionsGetAsync(employee_id, System.Threading.CancellationToken.None);
         }
@@ -5039,7 +5049,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// <param name="employee_id">Employee ID</param>
         /// <returns>Positions retrieved successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<Response145> PositionsGetAsync(int employee_id, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<Response146> PositionsGetAsync(int employee_id, System.Threading.CancellationToken cancellationToken)
         {
             if (employee_id == null)
                 throw new System.ArgumentNullException("employee_id");
@@ -5085,7 +5095,7 @@ namespace PhoneDirectoryBlazor.Services.Api
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Response145>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<Response146>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -5095,52 +5105,52 @@ namespace PhoneDirectoryBlazor.Services.Api
                         else
                         if (status_ == 400)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Response155>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<Response155>("Invalid employee ID", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 401)
-                        {
                             var objectResponse_ = await ReadObjectResponseAsync<Response156>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response156>("Missing or invalid JWT token", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response156>("Invalid employee ID", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 403)
+                        if (status_ == 401)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response157>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response157>("Insufficient permissions", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response157>("Missing or invalid JWT token", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 404)
+                        if (status_ == 403)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response158>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response158>("Employee not found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response158>("Insufficient permissions", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 500)
+                        if (status_ == 404)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response159>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response159>("Internal server error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response159>("Employee not found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<Response160>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<Response160>("Internal server error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         {
@@ -5243,62 +5253,62 @@ namespace PhoneDirectoryBlazor.Services.Api
                         else
                         if (status_ == 400)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Response160>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<Response160>("Invalid employee or position ID", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 401)
-                        {
                             var objectResponse_ = await ReadObjectResponseAsync<Response161>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response161>("Missing or invalid JWT token", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response161>("Invalid employee or position ID", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 403)
+                        if (status_ == 401)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response162>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response162>("Insufficient permissions", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response162>("Missing or invalid JWT token", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 404)
+                        if (status_ == 403)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response163>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response163>("Employee or position not found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response163>("Insufficient permissions", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 409)
+                        if (status_ == 404)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response164>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response164>("Position already assigned to this employee", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response164>("Employee or position not found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 500)
+                        if (status_ == 409)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response165>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response165>("Internal server error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response165>("Position already assigned to this employee", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<Response166>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<Response166>("Internal server error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         {
@@ -5400,52 +5410,52 @@ namespace PhoneDirectoryBlazor.Services.Api
                         else
                         if (status_ == 400)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Response166>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<Response166>("Invalid employee or position ID", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 401)
-                        {
                             var objectResponse_ = await ReadObjectResponseAsync<Response167>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response167>("Missing or invalid JWT token", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response167>("Invalid employee or position ID", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 403)
+                        if (status_ == 401)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response168>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response168>("Insufficient permissions", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response168>("Missing or invalid JWT token", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 404)
+                        if (status_ == 403)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response169>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response169>("Assignment not found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response169>("Insufficient permissions", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 500)
+                        if (status_ == 404)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response170>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response170>("Internal server error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response170>("Assignment not found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<Response171>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<Response171>("Internal server error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         {
@@ -5610,7 +5620,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// </remarks>
         /// <returns>Roles retrieved successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<Response171> RolesGetAsync();
+        System.Threading.Tasks.Task<Response172> RolesGetAsync();
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
@@ -5621,7 +5631,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// </remarks>
         /// <returns>Roles retrieved successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<Response171> RolesGetAsync(System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<Response172> RolesGetAsync(System.Threading.CancellationToken cancellationToken);
 
         /// <summary>
         /// Enable/disable user account
@@ -5630,7 +5640,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// <param name="request">New status</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<Response172> StatusAsync(int id, ToggleStatusRequest request);
+        System.Threading.Tasks.Task<Response173> StatusAsync(int id, ToggleStatusRequest request);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
@@ -5640,7 +5650,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// <param name="request">New status</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<Response172> StatusAsync(int id, ToggleStatusRequest request, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<Response173> StatusAsync(int id, ToggleStatusRequest request, System.Threading.CancellationToken cancellationToken);
 
         /// <summary>
         /// Assign role to user
@@ -5738,7 +5748,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// </remarks>
         /// <returns>Roles retrieved successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<Response171> RolesGetAsync()
+        public virtual System.Threading.Tasks.Task<Response172> RolesGetAsync()
         {
             return RolesGetAsync(System.Threading.CancellationToken.None);
         }
@@ -5752,7 +5762,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// </remarks>
         /// <returns>Roles retrieved successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<Response171> RolesGetAsync(System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<Response172> RolesGetAsync(System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -5793,7 +5803,7 @@ namespace PhoneDirectoryBlazor.Services.Api
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Response171>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<Response172>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -5803,32 +5813,32 @@ namespace PhoneDirectoryBlazor.Services.Api
                         else
                         if (status_ == 401)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Response173>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<Response173>("Missing or invalid JWT token", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
                             var objectResponse_ = await ReadObjectResponseAsync<Response174>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response174>("Insufficient permissions", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response174>("Missing or invalid JWT token", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 500)
+                        if (status_ == 403)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response175>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response175>("Internal server error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response175>("Insufficient permissions", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<Response176>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<Response176>("Internal server error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         {
@@ -5857,7 +5867,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// <param name="request">New status</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<Response172> StatusAsync(int id, ToggleStatusRequest request)
+        public virtual System.Threading.Tasks.Task<Response173> StatusAsync(int id, ToggleStatusRequest request)
         {
             return StatusAsync(id, request, System.Threading.CancellationToken.None);
         }
@@ -5870,7 +5880,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// <param name="request">New status</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<Response172> StatusAsync(int id, ToggleStatusRequest request, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<Response173> StatusAsync(int id, ToggleStatusRequest request, System.Threading.CancellationToken cancellationToken)
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
@@ -5923,7 +5933,7 @@ namespace PhoneDirectoryBlazor.Services.Api
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Response172>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<Response173>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -5933,42 +5943,42 @@ namespace PhoneDirectoryBlazor.Services.Api
                         else
                         if (status_ == 400)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Response176>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<Response176>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 401)
-                        {
                             var objectResponse_ = await ReadObjectResponseAsync<Response177>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response177>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response177>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 403)
+                        if (status_ == 401)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response178>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response178>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response178>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 404)
+                        if (status_ == 403)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response179>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response179>("Not Found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response179>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 404)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<Response180>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<Response180>("Not Found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         {
@@ -6067,52 +6077,52 @@ namespace PhoneDirectoryBlazor.Services.Api
                         else
                         if (status_ == 400)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Response180>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<Response180>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 401)
-                        {
                             var objectResponse_ = await ReadObjectResponseAsync<Response181>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response181>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response181>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 403)
+                        if (status_ == 401)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response182>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response182>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response182>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 404)
+                        if (status_ == 403)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response183>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response183>("Not Found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response183>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 409)
+                        if (status_ == 404)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response184>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response184>("Conflict", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response184>("Not Found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 409)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<Response185>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<Response185>("Conflict", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         {
@@ -6208,32 +6218,32 @@ namespace PhoneDirectoryBlazor.Services.Api
                         else
                         if (status_ == 401)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Response185>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<Response185>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
                             var objectResponse_ = await ReadObjectResponseAsync<Response186>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response186>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response186>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 404)
+                        if (status_ == 403)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response187>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response187>("Not Found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response187>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 404)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<Response188>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<Response188>("Not Found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         {
@@ -6399,7 +6409,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// <param name="request">Credentials</param>
         /// <returns>Tokens generated successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<Response188> LoginAsync(LoginRequest request);
+        System.Threading.Tasks.Task<Response189> LoginAsync(LoginRequest request);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
@@ -6411,7 +6421,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// <param name="request">Credentials</param>
         /// <returns>Tokens generated successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<Response188> LoginAsync(LoginRequest request, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<Response189> LoginAsync(LoginRequest request, System.Threading.CancellationToken cancellationToken);
 
         /// <summary>
         /// Refresh JWT tokens
@@ -6422,7 +6432,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// <param name="request">Refresh token</param>
         /// <returns>New token pair generated successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<Response189> RefreshAsync(RefreshRequest request);
+        System.Threading.Tasks.Task<Response190> RefreshAsync(RefreshRequest request);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
@@ -6434,7 +6444,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// <param name="request">Refresh token</param>
         /// <returns>New token pair generated successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<Response189> RefreshAsync(RefreshRequest request, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<Response190> RefreshAsync(RefreshRequest request, System.Threading.CancellationToken cancellationToken);
 
     }
 
@@ -6495,7 +6505,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// <param name="request">Credentials</param>
         /// <returns>Tokens generated successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<Response188> LoginAsync(LoginRequest request)
+        public virtual System.Threading.Tasks.Task<Response189> LoginAsync(LoginRequest request)
         {
             return LoginAsync(request, System.Threading.CancellationToken.None);
         }
@@ -6510,7 +6520,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// <param name="request">Credentials</param>
         /// <returns>Tokens generated successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<Response188> LoginAsync(LoginRequest request, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<Response189> LoginAsync(LoginRequest request, System.Threading.CancellationToken cancellationToken)
         {
             if (request == null)
                 throw new System.ArgumentNullException("request");
@@ -6558,7 +6568,7 @@ namespace PhoneDirectoryBlazor.Services.Api
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Response188>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<Response189>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -6568,42 +6578,42 @@ namespace PhoneDirectoryBlazor.Services.Api
                         else
                         if (status_ == 400)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Response190>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<Response190>("Invalid request format", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 401)
-                        {
                             var objectResponse_ = await ReadObjectResponseAsync<Response191>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response191>("Invalid credentials or account disabled", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response191>("Invalid request format", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 422)
+                        if (status_ == 401)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response192>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response192>("Validation failed", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response192>("Invalid credentials or account disabled", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 500)
+                        if (status_ == 422)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response193>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response193>("Internal server error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response193>("Validation failed", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<Response194>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<Response194>("Internal server error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         {
@@ -6634,7 +6644,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// <param name="request">Refresh token</param>
         /// <returns>New token pair generated successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<Response189> RefreshAsync(RefreshRequest request)
+        public virtual System.Threading.Tasks.Task<Response190> RefreshAsync(RefreshRequest request)
         {
             return RefreshAsync(request, System.Threading.CancellationToken.None);
         }
@@ -6649,7 +6659,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// <param name="request">Refresh token</param>
         /// <returns>New token pair generated successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<Response189> RefreshAsync(RefreshRequest request, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<Response190> RefreshAsync(RefreshRequest request, System.Threading.CancellationToken cancellationToken)
         {
             if (request == null)
                 throw new System.ArgumentNullException("request");
@@ -6697,7 +6707,7 @@ namespace PhoneDirectoryBlazor.Services.Api
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Response189>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<Response190>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -6707,42 +6717,42 @@ namespace PhoneDirectoryBlazor.Services.Api
                         else
                         if (status_ == 400)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Response194>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<Response194>("Invalid request format or missing refresh_token", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 401)
-                        {
                             var objectResponse_ = await ReadObjectResponseAsync<Response195>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response195>("Invalid, expired or revoked refresh token", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response195>("Invalid request format or missing refresh_token", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 422)
+                        if (status_ == 401)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response196>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response196>("Validation failed", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response196>("Invalid, expired or revoked refresh token", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 500)
+                        if (status_ == 422)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response197>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response197>("Internal server error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response197>("Validation failed", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<Response198>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<Response198>("Internal server error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         {
@@ -6907,7 +6917,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// </remarks>
         /// <returns>Organization tree retrieved successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<Response198> TreeAsync();
+        System.Threading.Tasks.Task<Response199> TreeAsync();
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
@@ -6918,7 +6928,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// </remarks>
         /// <returns>Organization tree retrieved successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<Response198> TreeAsync(System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<Response199> TreeAsync(System.Threading.CancellationToken cancellationToken);
 
     }
 
@@ -6978,7 +6988,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// </remarks>
         /// <returns>Organization tree retrieved successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<Response198> TreeAsync()
+        public virtual System.Threading.Tasks.Task<Response199> TreeAsync()
         {
             return TreeAsync(System.Threading.CancellationToken.None);
         }
@@ -6992,7 +7002,7 @@ namespace PhoneDirectoryBlazor.Services.Api
         /// </remarks>
         /// <returns>Organization tree retrieved successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<Response198> TreeAsync(System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<Response199> TreeAsync(System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -7033,7 +7043,7 @@ namespace PhoneDirectoryBlazor.Services.Api
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Response198>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<Response199>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -7043,32 +7053,32 @@ namespace PhoneDirectoryBlazor.Services.Api
                         else
                         if (status_ == 401)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Response199>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<Response199>("Missing or invalid JWT token", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 403)
-                        {
                             var objectResponse_ = await ReadObjectResponseAsync<Response200>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response200>("Insufficient permissions", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response200>("Missing or invalid JWT token", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
-                        if (status_ == 500)
+                        if (status_ == 403)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Response201>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Response201>("Internal server error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<Response201>("Insufficient permissions", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<Response202>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<Response202>("Internal server error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         {
@@ -7652,6 +7662,10 @@ namespace PhoneDirectoryBlazor.Services.Api
         [Newtonsoft.Json.JsonProperty("end_date_of_access", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string End_date_of_access { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("password", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [System.ComponentModel.DataAnnotations.StringLength(int.MaxValue, MinimumLength = 8)]
+        public string Password { get; set; }
+
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
@@ -7679,33 +7693,18 @@ namespace PhoneDirectoryBlazor.Services.Api
     public partial class BaseResponse
     {
 
-        /// <summary>
-        /// Полезная нагрузка (только при успехе)
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("data", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public object Data { get; set; }
 
-        /// <summary>
-        /// Информация об ошибке (только при fail)
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("error", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ErrorInfo Error { get; set; }
 
-        /// <summary>
-        /// Пагинация, доп. метаданные
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("meta", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Meta Meta { get; set; }
 
-        /// <summary>
-        /// Был ли запрос успешен
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("success", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? Success { get; set; }
 
-        /// <summary>
-        /// Время ответа
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("timestamp", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Timestamp { get; set; }
 
@@ -7715,21 +7714,12 @@ namespace PhoneDirectoryBlazor.Services.Api
     public partial class ErrorInfo
     {
 
-        /// <summary>
-        /// Машинный код ошибки: "validation_failed", "user_exists"
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("code", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Code { get; set; }
 
-        /// <summary>
-        /// Контекст: поля валидации, ID ресурса и т.д.
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("details", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public object Details { get; set; }
 
-        /// <summary>
-        /// Человекочитаемое сообщение
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Message { get; set; }
 
@@ -8969,6 +8959,9 @@ namespace PhoneDirectoryBlazor.Services.Api
     public partial class Response134 : BaseResponse
     {
 
+        [Newtonsoft.Json.JsonProperty("details", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.IDictionary<string, string> Details { get; set; }
+
         [Newtonsoft.Json.JsonProperty("error", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ErrorInfo Error { get; set; }
 
@@ -8996,8 +8989,8 @@ namespace PhoneDirectoryBlazor.Services.Api
     public partial class Response137 : BaseResponse
     {
 
-        [Newtonsoft.Json.JsonProperty("data", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<EmployeeResponse> Data { get; set; }
+        [Newtonsoft.Json.JsonProperty("error", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public ErrorInfo Error { get; set; }
 
     }
 
@@ -9005,8 +8998,8 @@ namespace PhoneDirectoryBlazor.Services.Api
     public partial class Response138 : BaseResponse
     {
 
-        [Newtonsoft.Json.JsonProperty("error", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ErrorInfo Error { get; set; }
+        [Newtonsoft.Json.JsonProperty("data", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<EmployeeResponse> Data { get; set; }
 
     }
 
@@ -9050,8 +9043,8 @@ namespace PhoneDirectoryBlazor.Services.Api
     public partial class Response143 : BaseResponse
     {
 
-        [Newtonsoft.Json.JsonProperty("data", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<EmployeeResponse> Data { get; set; }
+        [Newtonsoft.Json.JsonProperty("error", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public ErrorInfo Error { get; set; }
 
     }
 
@@ -9060,7 +9053,7 @@ namespace PhoneDirectoryBlazor.Services.Api
     {
 
         [Newtonsoft.Json.JsonProperty("data", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<PhoneResponse> Data { get; set; }
+        public System.Collections.Generic.ICollection<EmployeeResponse> Data { get; set; }
 
     }
 
@@ -9069,7 +9062,7 @@ namespace PhoneDirectoryBlazor.Services.Api
     {
 
         [Newtonsoft.Json.JsonProperty("data", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<PositionResponse> Data { get; set; }
+        public System.Collections.Generic.ICollection<PhoneResponse> Data { get; set; }
 
     }
 
@@ -9077,8 +9070,8 @@ namespace PhoneDirectoryBlazor.Services.Api
     public partial class Response146 : BaseResponse
     {
 
-        [Newtonsoft.Json.JsonProperty("error", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ErrorInfo Error { get; set; }
+        [Newtonsoft.Json.JsonProperty("data", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<PositionResponse> Data { get; set; }
 
     }
 
@@ -9302,8 +9295,8 @@ namespace PhoneDirectoryBlazor.Services.Api
     public partial class Response171 : BaseResponse
     {
 
-        [Newtonsoft.Json.JsonProperty("data", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<RoleDTO> Data { get; set; }
+        [Newtonsoft.Json.JsonProperty("error", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public ErrorInfo Error { get; set; }
 
     }
 
@@ -9312,7 +9305,7 @@ namespace PhoneDirectoryBlazor.Services.Api
     {
 
         [Newtonsoft.Json.JsonProperty("data", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserResponse Data { get; set; }
+        public System.Collections.Generic.ICollection<RoleDTO> Data { get; set; }
 
     }
 
@@ -9320,8 +9313,8 @@ namespace PhoneDirectoryBlazor.Services.Api
     public partial class Response173 : BaseResponse
     {
 
-        [Newtonsoft.Json.JsonProperty("error", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ErrorInfo Error { get; set; }
+        [Newtonsoft.Json.JsonProperty("data", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public UserResponse Data { get; set; }
 
     }
 
@@ -9455,8 +9448,8 @@ namespace PhoneDirectoryBlazor.Services.Api
     public partial class Response188 : BaseResponse
     {
 
-        [Newtonsoft.Json.JsonProperty("data", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public LoginResponse Data { get; set; }
+        [Newtonsoft.Json.JsonProperty("error", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public ErrorInfo Error { get; set; }
 
     }
 
@@ -9473,8 +9466,8 @@ namespace PhoneDirectoryBlazor.Services.Api
     public partial class Response190 : BaseResponse
     {
 
-        [Newtonsoft.Json.JsonProperty("error", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ErrorInfo Error { get; set; }
+        [Newtonsoft.Json.JsonProperty("data", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public LoginResponse Data { get; set; }
 
     }
 
@@ -9491,9 +9484,6 @@ namespace PhoneDirectoryBlazor.Services.Api
     public partial class Response192 : BaseResponse
     {
 
-        [Newtonsoft.Json.JsonProperty("details", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, string> Details { get; set; }
-
         [Newtonsoft.Json.JsonProperty("error", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ErrorInfo Error { get; set; }
 
@@ -9502,6 +9492,9 @@ namespace PhoneDirectoryBlazor.Services.Api
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class Response193 : BaseResponse
     {
+
+        [Newtonsoft.Json.JsonProperty("details", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.IDictionary<string, string> Details { get; set; }
 
         [Newtonsoft.Json.JsonProperty("error", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ErrorInfo Error { get; set; }
@@ -9530,9 +9523,6 @@ namespace PhoneDirectoryBlazor.Services.Api
     public partial class Response196 : BaseResponse
     {
 
-        [Newtonsoft.Json.JsonProperty("details", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, string> Details { get; set; }
-
         [Newtonsoft.Json.JsonProperty("error", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ErrorInfo Error { get; set; }
 
@@ -9541,6 +9531,9 @@ namespace PhoneDirectoryBlazor.Services.Api
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class Response197 : BaseResponse
     {
+
+        [Newtonsoft.Json.JsonProperty("details", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.IDictionary<string, string> Details { get; set; }
 
         [Newtonsoft.Json.JsonProperty("error", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ErrorInfo Error { get; set; }
@@ -9551,8 +9544,8 @@ namespace PhoneDirectoryBlazor.Services.Api
     public partial class Response198 : BaseResponse
     {
 
-        [Newtonsoft.Json.JsonProperty("data", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public OrganizationTreeResponse Data { get; set; }
+        [Newtonsoft.Json.JsonProperty("error", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public ErrorInfo Error { get; set; }
 
     }
 
@@ -9560,8 +9553,8 @@ namespace PhoneDirectoryBlazor.Services.Api
     public partial class Response199 : BaseResponse
     {
 
-        [Newtonsoft.Json.JsonProperty("error", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ErrorInfo Error { get; set; }
+        [Newtonsoft.Json.JsonProperty("data", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public OrganizationTreeResponse Data { get; set; }
 
     }
 
@@ -9576,6 +9569,15 @@ namespace PhoneDirectoryBlazor.Services.Api
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class Response201 : BaseResponse
+    {
+
+        [Newtonsoft.Json.JsonProperty("error", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public ErrorInfo Error { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class Response202 : BaseResponse
     {
 
         [Newtonsoft.Json.JsonProperty("error", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
