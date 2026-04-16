@@ -8,7 +8,6 @@
         <MudText Typo="Typo.h6">@Title</MudText>
 
         <MudForm @ref="_form" Class="mt-3">
-            @* 🔹 Email *@
             <MudTextField @bind-Value="editEmail"
                           Label="Email"
                           For="@(() => editEmail)"
@@ -16,7 +15,6 @@
                           Type="InputType.Email"
                           HelperText="Например: user@company.com" />
 
-            @* 🔹 Пароль (только при создании) *@
             @if (IsCreateMode)
             {
                 <MudTextField @bind-Value="editPassword"
@@ -28,7 +26,6 @@
                               Class="mt-2" />
             }
 
-            @* 🔹 Дата окончания доступа — ИСПРАВЛЕНО *@
             <MudDatePicker Label="Дата окончания доступа"
                            Editable="true"
                            ImmediateText="true"
@@ -42,10 +39,8 @@
                            Class="mt-2"
                            Clearable="true" />
 
-            @* 🔹 Статус аккаунта *@
             <MudSwitch @bind-Value="editIsActive" Label="Аккаунт активен" Class="mt-2" />
 
-            @* 🔹 Роли (чекбоксы вместо выпадающего списка) *@
             <MudText Typo="Typo.subtitle2" Class="mt-4 mb-2">Роли</MudText>
 
             <MudStack Spacing="1">
@@ -79,13 +74,11 @@
     private string editEmail = "";
     private string editPassword = "";
 
-    // 🔹 ИСПРАВЛЕНО: Используем DateTime? для календаря
     private DateTime? editEndDate;
     private string _dateFormat = "dd.MM.yyyy";
 
     private bool editIsActive = true;
 
-    // 🔹 Локальный список выбранных ролей (не синхронизируется с сервером до SaveAsync)
     private HashSet<int?> selectedRoleIds = new();
 
     private DateTime MinSelectableDate => DateTime.Today.AddDays(1);
@@ -107,12 +100,10 @@
         editEmail = Model?.Email ?? string.Empty;
         editPassword = "";
 
-        // 🔹 Инициализация даты из модели
         editEndDate = Model?.EndDateOfAccess;
 
         editIsActive = Model?.IsActive ?? true;
 
-        // 🔹 Инициализация выбранных ролей из модели (или пустой список при создании)
         if (Model?.Roles != null)
         {
             selectedRoleIds = new HashSet<int?>(Model.Roles.Select(r => (int?)r.Id));
@@ -125,7 +116,6 @@
         await LoadAvailableRoles();
     }
 
-    // 🔹 НОВЫЙ: Обработчик изменения текста в DatePicker
     private void OnDateTextChanged(string value)
     {
         if (string.IsNullOrWhiteSpace(value) || value.Length < 6)
@@ -145,7 +135,6 @@
             }
         }
 
-        // 🔹 Безопасный вызов только если компонент активен
         if (IsVisible)
         {
             try { StateHasChanged(); }
@@ -168,7 +157,6 @@
         }
         catch
         {
-            // Фолбэк на хардкод, если эндпоинт не работает
             _availableRoles = new List<RoleViewModel>
             {
                 new() { Id = 1, Name = "ADMIN" },
@@ -177,7 +165,6 @@
         }
     }
 
-    // 🔹 Подсветка выходных красным (опционально)
     private string GetDateClass(DateTime date)
     {
         if (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday)
@@ -187,13 +174,11 @@
         return string.Empty;
     }
 
-    // 🔹 Запрещает выбор дат раньше завтрашнего дня
     private bool IsDateDisabled(DateTime date)
     {
         return date.Date <= DateTime.Today;
     }
 
-    // 🔹 Обработчик изменения чекбокса роли
     private Task OnRoleCheckboxChanged(int? roleId, bool isChecked)
     {
         if (!roleId.HasValue) return Task.CompletedTask;
@@ -230,13 +215,11 @@
 
         try
         {
-            // 🔹 Конвертация роли
             var roleIdsToSend = selectedRoleIds
                 .Where(id => id.HasValue)
                 .Select(id => id!.Value)
                 .ToList();
 
-            // 🔹 Конвертация даты: DateTime? → string "yyyy-MM-dd" для API
             string endDateForApi = editEndDate?.ToString("yyyy-MM-dd");
 
             if (IsCreateMode)
@@ -313,7 +296,6 @@
         }
     }
 
-    // 🔹 Синхронизация ролей: добавление/удаление на сервере
     private async Task SyncRolesAsync(int userId, List<int> desiredRoleIds)
     {
         try

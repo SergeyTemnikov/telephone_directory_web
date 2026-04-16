@@ -144,7 +144,6 @@
 
             if (Model == null || Model.Id == null || Model.Id == 0)
             {
-                // Создание (без изменений)
                 var req = new CreateEmployeeRequest
                 {
                     Full_name = editFullName,
@@ -162,7 +161,6 @@
             {
                 var employeeId = Model.Id.Value;
 
-                // 🔹 ИСПРАВЛЕНО: Обновляем базовые поля
                 var updateReq = new UpdateEmployeeRequest
                 {
                     Full_name = editFullName,
@@ -174,7 +172,6 @@
                 };
                 await AdminClient.EmployeesPutAsync(employeeId, updateReq);
 
-                // 🔹 Синхронизация позиций (без изменений)
                 try
                 {
                     var currentPositionsResp = await EmployeesClient.PositionsGetAsync(employeeId);
@@ -209,7 +206,6 @@
                     Snackbar.Add("Не удалось синхронизировать позиции", Severity.Warning);
                 }
 
-                // 🔹 Синхронизация телефонов (без изменений)
                 try
                 {
                     var phonesResp = await EmployeesClient.PhonesAsync(employeeId);

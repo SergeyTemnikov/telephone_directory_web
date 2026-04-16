@@ -17,19 +17,17 @@ namespace PhoneDirectoryBlazor.Services.Auth
         Task<bool> IsAuthenticatedAsync();
     }
 
-    // Services/Auth/AuthService.cs
-
     public class AuthService : IAuthService
     {
-        private readonly IAuthClient _authClient;              // с обработчиком (для Login)
-        private readonly IHttpClientFactory _httpClientFactory; // 🔹 для создания клиента без обработчика
+        private readonly IAuthClient _authClient;              
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILocalStorageService _localStorage;
         private readonly NavigationManager _navigation;
         private readonly CustomAuthenticationStateProvider _authStateProvider;
 
         public AuthService(
             IAuthClient authClient,
-            IHttpClientFactory httpClientFactory,  // 🔹 НОВЫЙ параметр
+            IHttpClientFactory httpClientFactory,  
             ILocalStorageService localStorage,
             NavigationManager navigation,
             CustomAuthenticationStateProvider authStateProvider)
@@ -57,10 +55,8 @@ namespace PhoneDirectoryBlazor.Services.Auth
         {
             try
             {
-                // 🔹 Используем сгенерированный клиент — он сам сериализует запрос/ответ
                 var response = await _authClient.RefreshAsync(request);
 
-                // 🔹 Проверяем, что данные есть
                 if (response?.Data == null)
                 {
                     throw new ApiException(
@@ -73,7 +69,6 @@ namespace PhoneDirectoryBlazor.Services.Auth
 
                 var result = response.Data;
 
-                // 🔹 Сохраняем новые токены
                 await _localStorage.SetItemAsync("authToken", result.Access_token);
                 await _localStorage.SetItemAsync("refreshToken", result.Refresh_token);
 
@@ -81,14 +76,12 @@ namespace PhoneDirectoryBlazor.Services.Auth
             }
             catch (ApiException ex) when (ex.StatusCode is 401 or 403)
             {
-                // 🔹 Если рефреш-токен не валиден — чистим хранилище
                 await _localStorage.RemoveItemAsync("authToken");
                 await _localStorage.RemoveItemAsync("refreshToken");
-                throw; // Пробрасываем ошибку дальше для обработки в хендлере
+                throw; 
             }
             catch (Exception ex)
             {
-                // 🔹 Логируем или пробрасываем другие ошибки
                 throw new ApiException(
                     message: $"Refresh error: {ex.Message}",
                     statusCode: 500,

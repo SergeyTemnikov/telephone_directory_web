@@ -84,7 +84,6 @@
 
     private Task OpenEdit(PositionViewModel item)
     {
-        // Создаём копию для редактирования
         editingModel = new PositionViewModel
         {
             Id = item.Id,
@@ -125,7 +124,6 @@
             }
             catch (ApiException ex)
             {
-                // Проверяем, не связана ли позиция с сотрудниками
                 if (ex.StatusCode == 409)
                 {
                     Snackbar.Add("Невозможно удалить: позиция назначена сотрудникам", Severity.Warning);

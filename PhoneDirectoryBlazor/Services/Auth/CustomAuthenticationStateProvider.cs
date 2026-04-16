@@ -40,7 +40,6 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
         try
         {
-            // простая декодировка payload (без валидации) — для UI claims
             var parts = jwt.Split('.');
             if (parts.Length < 2) return new ClaimsIdentity();
 
@@ -53,12 +52,10 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
             {
                 foreach (var kv in claimsData)
                 {
-                    // стандартные поля
                     if (kv.Value == null) continue;
                     var value = kv.Value.ToString() ?? "";
                     if (kv.Key == "roles" || kv.Key == "role")
                     {
-                        // если массив ролей
                         if (value.StartsWith("["))
                         {
                             var arr = JsonSerializer.Deserialize<string[]>(value);

@@ -38,7 +38,6 @@ namespace PhoneDirectoryBlazor
                 BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
             });
 
-            // 🔹 Простой клиент для рефреша — БЕЗ AuthHeaderHandler!
             builder.Services.AddHttpClient("RefreshClient", client =>
             {
                 client.BaseAddress = new Uri(apiBaseUrl);

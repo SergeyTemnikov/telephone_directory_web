@@ -57,13 +57,11 @@
         {
             if (Model == null || Model.Id == null || Model.Id == 0)
             {
-                // Создание новой позиции
                 var req = new CreatePositionRequest { Name = editName };
                 await AdminClient.PositionsPostAsync(req);
             }
             else
             {
-                // Обновление существующей позиции
                 var req = new UpdatePositionRequest { Name = editName };
                 await AdminClient.PositionsPutAsync(Model.Id.Value, req);
             }

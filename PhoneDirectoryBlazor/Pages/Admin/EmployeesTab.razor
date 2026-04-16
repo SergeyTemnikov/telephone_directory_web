@@ -88,7 +88,6 @@
             var resp = await AdminClient.EmployeesGetAsync();
             var data = resp?.Data ?? new List<EmployeeResponse>();
 
-            // Сначала мапим базовые поля
             _items = data.Select(e => new EmployeeViewModel
             {
                 Id = e.Id,
@@ -131,7 +130,6 @@
                     }
                 }).ToArray();
 
-            // Параллельно запрашиваем телефоны для каждого сотрудника (если есть Id)
             var phoneTasks = _items
                 .Where(it => it.Id.HasValue)
                 .Select(async it =>
@@ -202,7 +200,6 @@
 
     private Task OpenEdit(EmployeeViewModel item)
     {
-        // create shallow copy for editing
         editingModel = new EmployeeViewModel
         {
             Id = item.Id,

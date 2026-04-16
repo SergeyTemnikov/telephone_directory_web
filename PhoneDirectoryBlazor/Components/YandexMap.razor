@@ -72,9 +72,6 @@
         }
     }
 
-    /// <summary>
-    /// Установить или обновить метку на карте
-    /// </summary>
     public async Task SetMarkerAsync(double lat, double lon, MarkerOptions? options = null)
     {
         if (!_isInitialized) return;
@@ -82,9 +79,6 @@
         await JS.InvokeVoidAsync("setYandexMarker", _elementId, lat, lon, options?.ToJsObject());
     }
 
-    /// <summary>
-    /// Геокодировать адрес и установить метку
-    /// </summary>
     public async Task<bool> SetMarkerByAddressAsync(string address, MarkerOptions? options = null)
     {
         if (!_isInitialized || string.IsNullOrWhiteSpace(address)) return false;
@@ -96,9 +90,6 @@
         return true;
     }
 
-    /// <summary>
-    /// Обработчик клика по метке (вызывается из JS)
-    /// </summary>
     [JSInvokable]
     public async Task OnMarkerClickedAsync(object? payload)
     {
@@ -108,9 +99,6 @@
         }
     }
 
-    /// <summary>
-    /// Удалить карту и освободить ресурсы
-    /// </summary>
     public async Task DestroyAsync()
     {
         if (!_isInitialized) return;
@@ -131,7 +119,6 @@
         _dotNetRef?.Dispose();
     }
 
-    // 🔹 Вспомогательные классы
     public class MarkerOptions
     {
         public string? Label { get; set; }

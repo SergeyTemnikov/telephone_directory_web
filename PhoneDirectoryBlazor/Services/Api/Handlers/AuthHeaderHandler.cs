@@ -1,5 +1,4 @@
-﻿// Services/Api/AuthHeaderHandler.cs
-using PhoneDirectoryBlazor.Services.Auth;
+﻿using PhoneDirectoryBlazor.Services.Auth;
 using PhoneDirectoryBlazor.Services.Storage;
 using System;
 using System.Net;
@@ -25,7 +24,6 @@ public class AuthHeaderHandler : DelegatingHandler
         HttpRequestMessage request,
         CancellationToken cancellationToken)
     {
-        // 🔹 Добавляем токен
         var token = await _localStorage.GetItemAsync<string>("authToken");
         if (!string.IsNullOrEmpty(token))
         {
@@ -34,11 +32,9 @@ public class AuthHeaderHandler : DelegatingHandler
 
         var response = await base.SendAsync(request, cancellationToken);
 
-        // 🔹 Если получили 401 — НЕ вызываем рефреш здесь!
-        // Просто пробрасываем 401 дальше, и компонент/сервис сам решит, что делать
         if (response.StatusCode == HttpStatusCode.Unauthorized)
         {
-            return response; // 🔹 Просто возвращаем 401
+            return response; 
         }
 
         return response;

@@ -80,12 +80,10 @@
             var departments = data.Departments ?? new System.Collections.Generic.List<PhoneDirectoryBlazor.Services.Api.DepartmentFlatDTO>();
             var employees = data.Employees ?? new System.Collections.Generic.List<PhoneDirectoryBlazor.Services.Api.EmployeeFullDTO>();
 
-            // словарь отделов для быстрого доступа
             _departmentsLookup = departments
                 .Where(d => d.Id.HasValue)
                 .ToDictionary(d => d.Id!.Value, d => d.Name ?? $"Dept {d.Id}");
 
-            // строим узлы отделов (DepartmentNode содержит Children)
             _deptById.Clear();
             foreach (var d in departments.Where(x => x.Id.HasValue))
             {
@@ -94,13 +92,12 @@
                 {
                     Id = id,
                     Name = d.Name ?? $"Dept {id}",
-                    ParentId = d.Parent_department_id, // подстраиваюсь под возможное имя поля
+                    ParentId = d.Parent_department_id, 
                     IsCollapsed = false
                 };
                 _deptById[id] = node;
             }
 
-            // связываем в дерево
             _deptRoots = new List<DepartmentNode>();
             foreach (var node in _deptById.Values)
             {
@@ -114,7 +111,6 @@
                 }
             }
 
-            // маппим сотрудников в удобную модель
             _employees = employees.Select(e => new EmployeeViewModel
             {
                 Id = e.Id,
@@ -128,7 +124,6 @@
                 ManagerId = e.Manager_id
             }).ToList();
 
-            // привязываем сотрудников к отделам
             foreach (var emp in _employees)
             {
                 if (emp.DepartmentId.HasValue && _deptById.TryGetValue(emp.DepartmentId.Value, out var deptNode))
@@ -148,7 +143,6 @@
                 }
             }
 
-            // сортировки: корни по имени, сотрудники по ФИО
             _deptRoots = _deptRoots.OrderBy(d => d.Name).ToList();
             foreach (var node in _deptById.Values)
             {
@@ -183,7 +177,6 @@
             var id = cur.Manager.Id ?? -1;
             if (id != -1 && !seen.Add(id))
             {
-                // цикл обнаружен
                 break;
             }
             chain.Add(cur.Manager);
@@ -193,7 +186,6 @@
     }
 
 
-    // Razor-рендеринг (удобнее и безопаснее)
     private RenderFragment RenderDepartmentRazor(DepartmentNode dept, int level) => @<div class="ladder-department level-@level @(dept.IsCollapsed ? "collapsed" : "")">
     <div class="dept-header d-flex align-center justify-space-between">
         <div class="d-flex align-center gap-2">

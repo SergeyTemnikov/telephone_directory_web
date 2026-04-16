@@ -165,7 +165,6 @@
     private YandexMap? _map;
     private string _apiKey;
 
-    // локальные структуры для быстрого поиска
     private Dictionary<int, EmployeeViewModel> _empById = new();
     private Dictionary<int, DepartmentNode> _deptById = new();
 
@@ -193,10 +192,8 @@
             var departments = data.Departments ?? new List<PhoneDirectoryBlazor.Services.Api.DepartmentFlatDTO>();
             var employees = data.Employees ?? new List<PhoneDirectoryBlazor.Services.Api.EmployeeFullDTO>();
 
-            // departments lookup
             _departments = departments.Where(d => d.Id.HasValue).ToDictionary(d => d.Id!.Value, d => d.Name ?? $"Dept {d.Id}");
 
-            // build employees list and dict
             var list = employees.Select(e => new EmployeeViewModel
             {
                 Id = e.Id,
@@ -212,7 +209,6 @@
 
             _empById = list.Where(x => x.Id.HasValue).ToDictionary(x => x.Id!.Value, x => x);
 
-            // build manager/subordinates links
             foreach (var emp in _empById.Values)
             {
                 if (emp.ManagerId.HasValue && _empById.TryGetValue(emp.ManagerId.Value, out var mgr))
@@ -222,7 +218,6 @@
                 }
             }
 
-            // find requested employee
             if (!_empById.TryGetValue(id, out var target))
             {
                 _error = "Сотрудник не найден";
@@ -251,7 +246,6 @@
 
     private void CallPhone(string phone)
     {
-        // на мобильных откроется приложение звонка
         Nav.NavigateTo($"tel:{phone}", forceLoad: true);
     }
 
@@ -271,7 +265,6 @@
     {
         if (_map == null || string.IsNullOrWhiteSpace(_employee?.Address)) return;
 
-        // 🔹 Формируем ссылку на Яндекс.Карты с адресом
         var yandexMapsUrl = GetYandexMapsDirectLink(_employee.Address);
 
         await _map.SetMarkerByAddressAsync(_employee.Address, new YandexMap.MarkerOptions
@@ -280,20 +273,17 @@
             Hint = _employee.Address,
             Balloon = $"<b>{_employee.FullName}</b><br/>{_employee.Address}",
 
-            // 🔹 Теперь при клике откроются Яндекс.Карты, а не профиль
             Url = yandexMapsUrl,
-            Target = "_blank",  // Открыть в новой вкладке
+            Target = "_blank", 
 
             Preset = "islands#blueCircleDotIcon",
             Payload = new { employeeId = _employee.Id, address = _employee.Address }
         });
     }
 
-    // 🔹 Новый метод: прямая ссылка на Яндекс.Карты с адресом
     private string GetYandexMapsDirectLink(string address)
     {
         var q = System.Net.WebUtility.UrlEncode(address);
-        // 🔹 Открывает карту с поиском по адресу и масштабом 15
         return $"https://yandex.ru/maps/?text={q}&z=15&l=map";
     }
 
