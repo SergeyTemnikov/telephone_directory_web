@@ -1,28 +1,34 @@
 ﻿@page "/login"
 @inject IAuthService AuthService
+@inject IApiErrorHandler ErrorHandler
 @inject NavigationManager Nav
 @inject ISnackbar Snackbar
 
-<MudPaper Class="d-flex flex-column mx-auto mt-12 pa-6" Elevation="8" MaxWidth="400px">
-    <MudText Typo="Typo.h5" Class="mb-4">Вход в систему</MudText>
+<MudPaper Class="d-flex flex-column mx-auto mt-12 pa-6" Elevation="8" Style="max-width: 400px;">
+    <MudText Typo="Typo.h5" Class="mb-4 text-center">Вход в систему</MudText>
 
-    <MudForm @ref="_form" Valid="OnValidSubmit">
+    <MudForm @ref="_form">
         <MudTextField @bind-Value="_model.Email"
-                      Label="Логин"
+                      Label="Email"
+                      For="@(() => _model.Email)"
                       Required="true"
-                      RequiredError="Введите логин" />
+                      InputType="InputType.Email"
+                      RequiredError="Введите Email"
+                      Class="mb-3" />
 
         <MudTextField @bind-Value="_model.Password"
                       Label="Пароль"
-                      InputType="InputType.Password"
+                      For="@(() => _model.Password)"
                       Required="true"
-                      RequiredError="Введите пароль" />
+                      InputType="InputType.Password"
+                      RequiredError="Введите пароль"
+                      Class="mb-4" />
 
         <MudButton Variant="Variant.Filled"
                    Color="Color.Primary"
-                   Class="mt-4"
-                   Disabled="_loading"
-                   OnClick="Submit">
+                   Class="w-100"
+                   Disabled="@_loading"
+                   OnClick="SubmitAsync">
             @(_loading ? "Вход..." : "Войти")
         </MudButton>
     </MudForm>
@@ -33,40 +39,27 @@
     private bool _loading = false;
     private LoginRequest _model = new();
 
-    private async Task Submit()
+    private async Task SubmitAsync()
     {
         if (_form == null) return;
+
         await _form.ValidateAsync();
         if (!_form.IsValid) return;
-        await OnValidSubmit();
-    }
 
-    private async Task OnValidSubmit()
-    {
+        _loading = true;
+        StateHasChanged();
+
         try
         {
-            _loading = true;
             await AuthService.LoginAsync(_model);
 
-            Snackbar.Add("✓ Успешный вход", Severity.Success);
-            Nav.NavigateTo("/", forceLoad: true);
+            Snackbar.Add("Успешный вход", Severity.Success);
+            Nav.NavigateTo("/");
         }
         catch (ApiException ex)
         {
-            string message = ex.StatusCode switch
-            {
-                401 => "Неверная почта или пароль, либо аккаунт отключён",
-                403 => "Доступ запрещён: аккаунт истёк или не активен",
-                404 => "Пользователь не найден",
-                422 => "Ошибка валидации: проверьте данные",
-                _ => $"Ошибка входа: {ex.Message}"
-            };
-
-            Snackbar.Add(message, Severity.Error, config =>
-            {
-                config.VisibleStateDuration = 5000;
-                config.ShowCloseIcon = true;
-            });
+            var message = ErrorHandler.GetErrorMessage(ex);
+            Snackbar.Add(message, Severity.Error, config => config.VisibleStateDuration = 5000);
         }
         catch (Exception ex)
         {
@@ -75,6 +68,7 @@
         finally
         {
             _loading = false;
+            StateHasChanged();
         }
     }
 }

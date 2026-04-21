@@ -3,6 +3,7 @@
 @using MudBlazor
 @inject IAdminClient AdminClient
 @inject IEmployeesClient EmployeesClient
+@inject IApiErrorHandler ErrorHandler
 @inject ISnackbar Snackbar
 
 <Modal IsVisible="@IsVisible" IsVisibleChanged="OnIsVisibleChanged">
@@ -10,25 +11,49 @@
         <MudText Typo="Typo.h6">@Title</MudText>
 
         <MudForm @ref="_form" Class="mt-3">
-            <MudTextField @bind-Value="editFullName" Label="ФИО" For="@(() => editFullName)" Required="true" />
-            <MudTextField @bind-Value="editEmail" Label="Email" For="@(() => editEmail)" Required="true" />
-            <MudTextField @bind-Value="editAddress" Label="Адрес" For="@(() => editAddress)" />
-            <MudTextField @bind-Value="editComment" Label="Комментарий" For="@(() => editComment)" />
+            <MudTextField @bind-Value="editFullName" 
+                          Label="ФИО" 
+                          For="@(() => editFullName)" 
+                          Required="true" />
+            
+            <MudTextField @bind-Value="editEmail" 
+                          Label="Email" 
+                          For="@(() => editEmail)" 
+                          Required="true"
+                          Type="InputType.Email" />
+            
+            <MudTextField @bind-Value="editAddress" 
+                          Label="Адрес" 
+                          For="@(() => editAddress)"
+                          HelperText="Минимум 5 символов" />
+            
+            <MudTextField @bind-Value="editComment" 
+                          Label="Комментарий" 
+                          For="@(() => editComment)"
+                          MaxLength="150" />
 
-            <MudSelect T="int?" Label="Отдел" @bind-Value="selectedDepartmentId" Clearable="true" Searchable="true">
+            <MudSelect T="int?" 
+                       Label="Отдел" 
+                       @bind-Value="selectedDepartmentId" 
+                       Clearable="true" 
+                       Searchable="true">
                 <MudSelectItem T="int?" Value="null">— Не указан —</MudSelectItem>
                 @foreach (var d in Departments ?? Enumerable.Empty<DepartmentViewModel>())
                 {
-                    <MudSelectItem T="int?" Value="@d.Id">@d.Name (@d.Id)</MudSelectItem>
+                    <MudSelectItem T="int?" Value="@d.Id">@d.Name</MudSelectItem>
                 }
             </MudSelect>
 
-            <MudSelect T="int?" Label="Менеджер" @bind-Value="selectedManagerId" Clearable="true" Searchable="true">
+            <MudSelect T="int?" 
+                       Label="Менеджер" 
+                       @bind-Value="selectedManagerId" 
+                       Clearable="true" 
+                       Searchable="true">
                 <MudSelectItem T="int?" Value="null">— Нет менеджера —</MudSelectItem>
                 @foreach (var e in Employees ?? Enumerable.Empty<EmployeeViewModel>())
                 {
                     if (Model?.Id != null && e.Id == Model.Id) continue;
-                    <MudSelectItem T="int?" Value="@e.Id">@e.FullName (@e.Id)</MudSelectItem>
+                    <MudSelectItem T="int?" Value="@e.Id">@e.FullName</MudSelectItem>
                 }
             </MudSelect>
 
@@ -40,15 +65,23 @@
                        @bind-SelectedValues="selectedPositionIds">
                 @foreach (var p in _positions)
                 {
-                    <MudSelectItem T="int?" Value="@p.Id">@p.Name (@p.Id)</MudSelectItem>
+                    <MudSelectItem T="int?" Value="@p.Id">@p.Name</MudSelectItem>
                 }
             </MudSelect>
 
-            <MudTextField @bind-Value="phonesText" Label="Телефоны (через запятую)" For="@(() => phonesText)" />
+            <MudTextField @bind-Value="phonesText" 
+                          Label="Телефоны (через запятую)" 
+                          For="@(() => phonesText)"
+                          HelperText="Например: +7 (999) 123-45-67, +7 (495) 000-00-00" />
 
             <div class="d-flex justify-end gap-2 mt-4">
                 <MudButton Variant="Variant.Text" OnClick="Cancel">Отмена</MudButton>
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveAsync" Disabled="@_saving">Сохранить</MudButton>
+                <MudButton Variant="Variant.Filled" 
+                           Color="Color.Primary" 
+                           OnClick="SaveAsync" 
+                           Disabled="@_saving">
+                    @(_saving ? "Сохранение..." : "Сохранить")
+                </MudButton>
             </div>
         </MudForm>
     </MudPaper>
@@ -69,14 +102,20 @@
     private string editComment = "";
     private int? selectedDepartmentId;
     private int? selectedManagerId;
-
     private IReadOnlyCollection<int?> selectedPositionIds = new HashSet<int?>();
-
     private string phonesText = "";
+    
     private bool _saving;
     private List<PositionResponse> _positions = new();
+    private CancellationTokenSource? _cts;
 
-    private string Title => (Model?.Id == null || Model.Id == 0) ? "Создать сотрудника" : "Редактировать сотрудника";
+    private string Title => IsCreateMode ? "Создать сотрудника" : "Редактировать сотрудника";
+    private bool IsCreateMode => Model?.Id == null || Model.Id == 0;
+
+    protected override void OnInitialized()
+    {
+        _cts = new CancellationTokenSource(); 
+    }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -118,6 +157,13 @@
         }
     }
 
+    private string GetPositionName(int? id)
+    {
+        if (!id.HasValue) return string.Empty;
+        var position = _positions.FirstOrDefault(p => p.Id == id.Value);
+        return position?.Name ?? $"ID: {id}";
+    }
+
     private async Task SaveAsync()
     {
         await (_form?.ValidateAsync() ?? Task.CompletedTask);
@@ -130,6 +176,8 @@
         }
 
         _saving = true;
+        StateHasChanged();
+
         try
         {
             var phones = phonesText?.Split(',', StringSplitOptions.RemoveEmptyEntries)
@@ -142,7 +190,7 @@
                 .Select(id => id.Value)
                 .ToList();
 
-            if (Model == null || Model.Id == null || Model.Id == 0)
+            if (IsCreateMode)
             {
                 var req = new CreateEmployeeRequest
                 {
@@ -155,9 +203,9 @@
                     Phones = phones,
                     Position_ids = positionIds
                 };
-                await AdminClient.EmployeesPostAsync(req);
+                await AdminClient.EmployeesPostAsync(req, _cts.Token);
             }
-            else
+            else if (Model?.Id.HasValue == true)
             {
                 var employeeId = Model.Id.Value;
 
@@ -170,121 +218,157 @@
                     Department_id = selectedDepartmentId,
                     Manager_id = selectedManagerId
                 };
-                await AdminClient.EmployeesPutAsync(employeeId, updateReq);
+                await AdminClient.EmployeesPutAsync(employeeId, updateReq, _cts.Token);
 
-                try
-                {
-                    var currentPositionsResp = await EmployeesClient.PositionsGetAsync(employeeId);
-                    var currentPositionIds = currentPositionsResp?.Data?
-                        .Select(p => p.Id)
-                        .Where(id => id.HasValue)
-                        .Select(id => id!.Value)
-                        .ToHashSet() ?? new HashSet<int>();
-
-                    var desiredPositionIds = selectedPositionIds
-                        .Where(id => id.HasValue)
-                        .Select(id => id!.Value)
-                        .ToHashSet();
-
-                    var toAdd = desiredPositionIds.Except(currentPositionIds).ToList();
-                    var toRemove = currentPositionIds.Except(desiredPositionIds).ToList();
-
-                    foreach (var posId in toAdd)
-                    {
-                        try { await EmployeesClient.PositionsPutAsync(employeeId, posId); }
-                        catch (ApiException aex) { Snackbar.Add($"Ошибка позиций: {aex.Message}", Severity.Warning); }
-                    }
-
-                    foreach (var posId in toRemove)
-                    {
-                        try { await EmployeesClient.PositionsDeleteAsync(employeeId, posId); }
-                        catch (ApiException aex) { Snackbar.Add($"Ошибка позиций: {aex.Message}", Severity.Warning); }
-                    }
-                }
-                catch (ApiException)
-                {
-                    Snackbar.Add("Не удалось синхронизировать позиции", Severity.Warning);
-                }
-
-                try
-                {
-                    var phonesResp = await EmployeesClient.PhonesAsync(employeeId);
-                    var currentPhones = phonesResp?.Data?
-                        .Where(p => p.Id.HasValue && !string.IsNullOrWhiteSpace(p.Phone_number))
-                        .Select(p => new PhoneInfo { Id = p.Id!.Value, Number = p.Phone_number!.Trim() })
-                        .ToList() ?? new List<PhoneInfo>();
-
-                    var desiredPhones = phones
-                        .Select(p => p.Trim())
-                        .Where(p => !string.IsNullOrWhiteSpace(p))
-                        .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-                    var currentNumbers = currentPhones.Select(p => p.Number).ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-                    var toDelete = currentPhones.Where(cp => !desiredPhones.Contains(cp.Number)).Select(cp => cp.Id).ToList();
-                    foreach (var phoneId in toDelete)
-                    {
-                        try { await AdminClient.PhonesDeleteAsync(phoneId); }
-                        catch (ApiException aex) { Snackbar.Add($"Ошибка телефонов: {aex.Message}", Severity.Warning); }
-                    }
-
-                    var toAddPhones = desiredPhones.Except(currentNumbers).ToList();
-                    foreach (var number in toAddPhones)
-                    {
-                        try
-                        {
-                            var createReq = new CreatePhoneRequest { Employee_id = employeeId, Phone_number = number };
-                            await AdminClient.PhonesPostAsync(createReq);
-                        }
-                        catch (ApiException aex) { Snackbar.Add($"Ошибка телефонов: {aex.Message}", Severity.Warning); }
-                    }
-                }
-                catch (ApiException)
-                {
-                    Snackbar.Add("Не удалось синхронизировать телефоны", Severity.Warning);
-                }
+                await SyncPositionsAsync(employeeId, positionIds);
+                await SyncPhonesAsync(employeeId, phones);
             }
 
-            await OnSaved.InvokeAsync(true);
+            if (IsVisible && OnSaved.HasDelegate)
+            {
+                await OnSaved.InvokeAsync(true);
+            }
             await CloseModalAsync();
         }
-        catch (ApiException aex)
+        catch (OperationCanceledException)
         {
-            Snackbar.Add($"Ошибка API: {aex.Message}", Severity.Error);
         }
-        catch (Exception ex)
+        catch (ApiException aex) when (IsVisible)
         {
-            Snackbar.Add($"Ошибка: {ex.Message}", Severity.Error);
+            var userMessage = ErrorHandler.GetErrorMessage(aex);
+            Snackbar.Add(userMessage, Severity.Error, config => config.VisibleStateDuration = 6000);
+        }
+        catch (Exception ex) when (IsVisible)
+        {
+            Snackbar.Add($"Неожиданная ошибка: {ex.Message}", Severity.Error);
         }
         finally
         {
             _saving = false;
+            if (IsVisible)
+            {
+                try { StateHasChanged(); }
+                catch (ObjectDisposedException) { }
+            }
         }
     }
 
-    private string GetPositionName(int? id)
+    private async Task SyncPositionsAsync(int employeeId, List<int> desiredPositionIds)
     {
-        if (!id.HasValue) return string.Empty;
+        try
+        {
+            var currentResp = await EmployeesClient.PositionsGetAsync(employeeId, _cts.Token);
+            var currentIds = currentResp?.Data?
+                .Select(p => p.Id)
+                .Where(id => id.HasValue)
+                .Select(id => id!.Value)
+                .ToHashSet() ?? new HashSet<int>();
 
-        var position = _positions.FirstOrDefault(p => p.Id == id.Value);
-        return position?.Name ?? $"ID: {id}";
+            var desiredSet = new HashSet<int>(desiredPositionIds);
+            var toAdd = desiredSet.Except(currentIds).ToList();
+            var toRemove = currentIds.Except(desiredSet).ToList();
+
+            foreach (var posId in toAdd)
+            {
+                try
+                {
+                    await EmployeesClient.PositionsPutAsync(employeeId, posId, _cts.Token);
+                }
+                catch (ApiException aex) when (IsVisible)
+                {
+                    Snackbar.Add(ErrorHandler.GetErrorMessage(aex), Severity.Warning);
+                }
+            }
+
+            foreach (var posId in toRemove)
+            {
+                try
+                {
+                    await EmployeesClient.PositionsDeleteAsync(employeeId, posId, _cts.Token);
+                }
+                catch (ApiException aex) when (IsVisible)
+                {
+                    Snackbar.Add(ErrorHandler.GetErrorMessage(aex), Severity.Warning);
+                }
+            }
+        }
+        catch (Exception) when (IsVisible)
+        {
+            Snackbar.Add("Не удалось полностью синхронизировать позиции", Severity.Warning);
+        }
+    }
+
+    private async Task SyncPhonesAsync(int employeeId, List<string> desiredPhones)
+    {
+        try
+        {
+            var phonesResp = await EmployeesClient.PhonesAsync(employeeId, _cts.Token);
+
+            var currentPhones = phonesResp?.Data?
+                  .Where(p => p.Id.HasValue && !string.IsNullOrWhiteSpace(p.Phone_number))
+                  .Select(p => new PhoneInfo { Id = p.Id!.Value, Number = p.Phone_number!.Trim() })
+                  .ToList() ?? new List<PhoneInfo>();
+
+            var desiredSet = new HashSet<string>(desiredPhones, StringComparer.OrdinalIgnoreCase);
+            var currentNumbers = currentPhones.Select(p => p.Number).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var phone in currentPhones.Where(cp => !desiredSet.Contains(cp.Number)))
+            {
+                try
+                {
+                    await AdminClient.PhonesDeleteAsync(phone.Id, _cts.Token);
+                }
+                catch (ApiException aex) when (IsVisible)
+                {
+                    Snackbar.Add(ErrorHandler.GetErrorMessage(aex), Severity.Warning);
+                }
+            }
+
+            foreach (var number in desiredSet.Except(currentNumbers))
+            {
+                try
+                {
+                    var createReq = new CreatePhoneRequest
+                    {
+                        Employee_id = employeeId,
+                        Phone_number = number
+                    };
+                    await AdminClient.PhonesPostAsync(createReq, _cts.Token);
+                }
+                catch (ApiException aex) when (IsVisible)
+                {
+                    Snackbar.Add(ErrorHandler.GetErrorMessage(aex), Severity.Warning);
+                }
+            }
+        }
+        catch (Exception) when (IsVisible)
+        {
+            Snackbar.Add("Не удалось полностью синхронизировать телефоны", Severity.Warning);
+        }
     }
 
     private async Task Cancel()
     {
-        await OnSaved.InvokeAsync(false);
+        if (!IsVisible) return;
+        if (OnSaved.HasDelegate) await OnSaved.InvokeAsync(false);
         await CloseModalAsync();
     }
 
     private async Task CloseModalAsync()
     {
+        if (!IsVisible) return;
         IsVisible = false;
-        await IsVisibleChanged.InvokeAsync(IsVisible);
+        if (IsVisibleChanged.HasDelegate) await IsVisibleChanged.InvokeAsync(IsVisible);
     }
 
     private Task OnIsVisibleChanged(bool visible)
     {
-        if (!visible) OnSaved.InvokeAsync(false);
+        if (!visible && OnSaved.HasDelegate) OnSaved.InvokeAsync(false);
         return Task.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        _cts?.Dispose();
     }
 }

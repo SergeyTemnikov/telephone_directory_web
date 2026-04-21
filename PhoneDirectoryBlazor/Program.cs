@@ -6,6 +6,7 @@ using MudBlazor.Services;
 using PhoneDirectoryBlazor.Services.Api;
 using PhoneDirectoryBlazor.Services.Api.Handlers;
 using PhoneDirectoryBlazor.Services.Auth;
+using PhoneDirectoryBlazor.Services.Api.Errors;
 using PhoneDirectoryBlazor.Services.Storage;
 
 namespace PhoneDirectoryBlazor
@@ -82,6 +83,7 @@ namespace PhoneDirectoryBlazor
             builder.Services.AddScoped<AuthHeaderHandler>();
 
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IApiErrorHandler, ApiErrorHandler>();
 
             builder.Services.AddScoped<CustomAuthenticationStateProvider>();
             builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<CustomAuthenticationStateProvider>());

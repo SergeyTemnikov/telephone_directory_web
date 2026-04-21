@@ -1,4 +1,5 @@
 ﻿@inject IAdminClient AdminClient
+@inject IApiErrorHandler ErrorHandler
 @inject ISnackbar Snackbar
 
 <Modal IsVisible="@IsVisible" IsVisibleChanged="OnIsVisibleChanged">
@@ -14,7 +15,10 @@
 
             <div class="d-flex justify-end gap-2 mt-4">
                 <MudButton Variant="Variant.Text" OnClick="Cancel">Отмена</MudButton>
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveAsync" Disabled="@_saving">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           OnClick="SaveAsync"
+                           Disabled="@_saving">
                     @(_saving ? "Сохранение..." : "Сохранить")
                 </MudButton>
             </div>
@@ -31,10 +35,15 @@
     private MudForm? _form;
     private string editName = "";
     private bool _saving;
+    private CancellationTokenSource? _cts;
 
-    private string Title => (Model?.Id == null || Model.Id == 0)
-        ? "Создать позицию"
-        : "Редактировать позицию";
+    private string Title => IsCreateMode ? "Создать позицию" : "Редактировать позицию";
+    private bool IsCreateMode => Model?.Id == null || Model.Id == 0;
+
+    protected override void OnInitialized()
+    {
+        _cts = new CancellationTokenSource();
+    }
 
     protected override void OnParametersSet()
     {
@@ -53,58 +62,72 @@
         }
 
         _saving = true;
+        StateHasChanged();
+
         try
         {
-            if (Model == null || Model.Id == null || Model.Id == 0)
+            if (IsCreateMode)
             {
                 var req = new CreatePositionRequest { Name = editName };
-                await AdminClient.PositionsPostAsync(req);
+                await AdminClient.PositionsPostAsync(req, _cts.Token);
             }
-            else
+            else if (Model?.Id.HasValue == true)
             {
                 var req = new UpdatePositionRequest { Name = editName };
-                await AdminClient.PositionsPutAsync(Model.Id.Value, req);
+                await AdminClient.PositionsPutAsync(Model.Id.Value, req, _cts.Token);
             }
 
-            await OnSaved.InvokeAsync(true);
+            if (IsVisible && OnSaved.HasDelegate)
+            {
+                await OnSaved.InvokeAsync(true);
+            }
             await CloseModalAsync();
         }
-        catch (ApiException aex)
+        catch (OperationCanceledException)
         {
-            if (aex.StatusCode == 409)
-            {
-                Snackbar.Add("Позиция с таким названием уже существует", Severity.Error);
-            }
-            else
-            {
-                Snackbar.Add($"Ошибка API: {aex.Message}", Severity.Error);
-            }
         }
-        catch (Exception ex)
+        catch (ApiException aex) when (IsVisible)
         {
-            Snackbar.Add($"Ошибка: {ex.Message}", Severity.Error);
+            var userMessage = ErrorHandler.GetErrorMessage(aex);
+            Snackbar.Add(userMessage, Severity.Error, config => config.VisibleStateDuration = 6000);
+        }
+        catch (Exception ex) when (IsVisible)
+        {
+            Snackbar.Add($"Неожиданная ошибка: {ex.Message}", Severity.Error);
         }
         finally
         {
             _saving = false;
+            if (IsVisible)
+            {
+                try { StateHasChanged(); }
+                catch (ObjectDisposedException) { }
+            }
         }
     }
 
     private async Task Cancel()
     {
-        await OnSaved.InvokeAsync(false);
+        if (!IsVisible) return;
+        if (OnSaved.HasDelegate) await OnSaved.InvokeAsync(false);
         await CloseModalAsync();
     }
 
     private async Task CloseModalAsync()
     {
+        if (!IsVisible) return;
         IsVisible = false;
-        await IsVisibleChanged.InvokeAsync(IsVisible);
+        if (IsVisibleChanged.HasDelegate) await IsVisibleChanged.InvokeAsync(IsVisible);
     }
 
     private Task OnIsVisibleChanged(bool visible)
     {
-        if (!visible) OnSaved.InvokeAsync(false);
+        if (!visible && OnSaved.HasDelegate) OnSaved.InvokeAsync(false);
         return Task.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        _cts?.Dispose();
     }
 }

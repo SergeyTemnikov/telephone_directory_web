@@ -1100,6 +1100,6 @@ C:\Users\SergeyT\source\repos\PhoneDirectoryBlazor\PhoneDirectoryBlazor\obj\Debu
 C:\Users\SergeyT\source\repos\PhoneDirectoryBlazor\PhoneDirectoryBlazor\obj\Debug\net8.0\PhoneDirectoryBlazor.pdb
 C:\Users\SergeyT\source\repos\PhoneDirectoryBlazor\PhoneDirectoryBlazor\obj\Debug\net8.0\ref\PhoneDirectoryBlazor.dll
 C:\Users\SergeyT\source\repos\PhoneDirectoryBlazor\PhoneDirectoryBlazor\obj\Debug\net8.0\PhoneDirectoryBlazor.sourcelink.json
-C:\Users\SergeyT\source\repos\PhoneDirectoryBlazor\PhoneDirectoryBlazor\obj\Debug\net8.0\compressed\f31kd57wvv-r85e5wb8k0.gz
-C:\Users\SergeyT\source\repos\PhoneDirectoryBlazor\PhoneDirectoryBlazor\obj\Debug\net8.0\compressed\jj81idk714-qpzgn7c19r.gz
-C:\Users\SergeyT\source\repos\PhoneDirectoryBlazor\PhoneDirectoryBlazor\obj\Debug\net8.0\compressed\1za4197vgh-2qk1ghuazk.gz
+C:\Users\SergeyT\source\repos\PhoneDirectoryBlazor\PhoneDirectoryBlazor\obj\Debug\net8.0\compressed\f31kd57wvv-9fyk4exwna.gz
+C:\Users\SergeyT\source\repos\PhoneDirectoryBlazor\PhoneDirectoryBlazor\obj\Debug\net8.0\compressed\jj81idk714-18e6srvq93.gz
+C:\Users\SergeyT\source\repos\PhoneDirectoryBlazor\PhoneDirectoryBlazor\obj\Debug\net8.0\compressed\1za4197vgh-tth8pb6z8h.gz
