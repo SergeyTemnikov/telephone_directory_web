@@ -11,32 +11,12 @@
         <MudText Typo="Typo.h6">@Title</MudText>
 
         <MudForm @ref="_form" Class="mt-3">
-            <MudTextField @bind-Value="editFullName" 
-                          Label="ФИО" 
-                          For="@(() => editFullName)" 
-                          Required="true" />
-            
-            <MudTextField @bind-Value="editEmail" 
-                          Label="Email" 
-                          For="@(() => editEmail)" 
-                          Required="true"
-                          Type="InputType.Email" />
-            
-            <MudTextField @bind-Value="editAddress" 
-                          Label="Адрес" 
-                          For="@(() => editAddress)"
-                          HelperText="Минимум 5 символов" />
-            
-            <MudTextField @bind-Value="editComment" 
-                          Label="Комментарий" 
-                          For="@(() => editComment)"
-                          MaxLength="150" />
+            <MudTextField @bind-Value="editFullName" Label="ФИО" Required="true" />
+            <MudTextField @bind-Value="editEmail" Label="Email" Required="true" Type="InputType.Email" />
+            <MudTextField @bind-Value="editAddress" Label="Адрес" HelperText="Минимум 5 символов" />
+            <MudTextField @bind-Value="editComment" Label="Комментарий" MaxLength="150" />
 
-            <MudSelect T="int?" 
-                       Label="Отдел" 
-                       @bind-Value="selectedDepartmentId" 
-                       Clearable="true" 
-                       Searchable="true">
+            <MudSelect T="int?" Label="Отдел" @bind-Value="selectedDepartmentId" Clearable="true" Searchable="true">
                 <MudSelectItem T="int?" Value="null">— Не указан —</MudSelectItem>
                 @foreach (var d in Departments ?? Enumerable.Empty<DepartmentViewModel>())
                 {
@@ -44,11 +24,7 @@
                 }
             </MudSelect>
 
-            <MudSelect T="int?" 
-                       Label="Менеджер" 
-                       @bind-Value="selectedManagerId" 
-                       Clearable="true" 
-                       Searchable="true">
+            <MudSelect T="int?" Label="Менеджер" @bind-Value="selectedManagerId" Clearable="true" Searchable="true">
                 <MudSelectItem T="int?" Value="null">— Нет менеджера —</MudSelectItem>
                 @foreach (var e in Employees ?? Enumerable.Empty<EmployeeViewModel>())
                 {
@@ -58,27 +34,28 @@
             </MudSelect>
 
             <MudSelect T="int?"
-                       Label="Позиции"
+                       @key="@($"{_positions.Count}-{string.Join(",", selectedPositionIds ?? [])}")"
+                       Label="Должности"
                        MultiSelection="true"
                        Searchable="true"
                        ToStringFunc="@(id => GetPositionName(id))"
-                       @bind-SelectedValues="selectedPositionIds">
+                       SelectedValues="selectedPositionIds"
+                       SelectedValuesChanged="OnSelectedPositionsChanged">
                 @foreach (var p in _positions)
                 {
-                    <MudSelectItem T="int?" Value="@p.Id">@p.Name</MudSelectItem>
+                    <MudSelectItem T="int?" Value="@((int?)p.Id)">@p.Name</MudSelectItem>
                 }
             </MudSelect>
 
-            <MudTextField @bind-Value="phonesText" 
-                          Label="Телефоны (через запятую)" 
-                          For="@(() => phonesText)"
+            <MudTextField @bind-Value="phonesText"
+                          Label="Телефоны (через запятую)"
                           HelperText="Например: +7 (999) 123-45-67, +7 (495) 000-00-00" />
 
             <div class="d-flex justify-end gap-2 mt-4">
                 <MudButton Variant="Variant.Text" OnClick="Cancel">Отмена</MudButton>
-                <MudButton Variant="Variant.Filled" 
-                           Color="Color.Primary" 
-                           OnClick="SaveAsync" 
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           OnClick="SaveAsync"
                            Disabled="@_saving">
                     @(_saving ? "Сохранение..." : "Сохранить")
                 </MudButton>
@@ -104,7 +81,7 @@
     private int? selectedManagerId;
     private IReadOnlyCollection<int?> selectedPositionIds = new HashSet<int?>();
     private string phonesText = "";
-    
+
     private bool _saving;
     private List<PositionResponse> _positions = new();
     private CancellationTokenSource? _cts;
@@ -114,11 +91,13 @@
 
     protected override void OnInitialized()
     {
-        _cts = new CancellationTokenSource(); 
+        _cts = new CancellationTokenSource();
     }
 
     protected override async Task OnParametersSetAsync()
     {
+        await LoadPositions();
+
         editFullName = Model?.FullName ?? string.Empty;
         editEmail = Model?.Email ?? string.Empty;
         editAddress = Model?.Address ?? string.Empty;
@@ -126,22 +105,37 @@
         selectedDepartmentId = Model?.DepartmentId;
         selectedManagerId = Model?.ManagerId;
 
-        if (Model?.Positions != null)
+        phonesText = Model != null ? string.Join(", ", Model.Phones) : string.Empty;
+
+        if (Model?.Id.HasValue == true)
         {
-            var ids = Model.Positions
-                .Select(s => int.TryParse(s, out var id) ? (int?)id : null)
-                .Where(i => i.HasValue)
-                .ToList();
-            selectedPositionIds = new HashSet<int?>(ids);
+            try
+            {
+                var resp = await EmployeesClient.PositionsGetAsync(Model.Id.Value, _cts.Token);
+
+                selectedPositionIds = resp?.Data?
+                    .Where(p => p.Id.HasValue)
+                    .Select(p => (int?)p.Id!.Value)
+                    .ToHashSet()
+                    ?? new HashSet<int?>();
+            }
+            catch
+            {
+                selectedPositionIds = new HashSet<int?>();
+            }
         }
         else
         {
             selectedPositionIds = new HashSet<int?>();
         }
 
-        phonesText = Model != null ? string.Join(", ", Model.Phones) : string.Empty;
+        await InvokeAsync(StateHasChanged);
+    }
 
-        await LoadPositions();
+    private Task OnSelectedPositionsChanged(IEnumerable<int?> values)
+    {
+        selectedPositionIds = values?.ToHashSet() ?? new HashSet<int?>();
+        return Task.CompletedTask;
     }
 
     private async Task LoadPositions()
@@ -225,31 +219,22 @@
             }
 
             if (IsVisible && OnSaved.HasDelegate)
-            {
                 await OnSaved.InvokeAsync(true);
-            }
+
             await CloseModalAsync();
-        }
-        catch (OperationCanceledException)
-        {
         }
         catch (ApiException aex) when (IsVisible)
         {
-            var userMessage = ErrorHandler.GetErrorMessage(aex);
-            Snackbar.Add(userMessage, Severity.Error, config => config.VisibleStateDuration = 6000);
+            Snackbar.Add(ErrorHandler.GetErrorMessage(aex), Severity.Error);
         }
         catch (Exception ex) when (IsVisible)
         {
-            Snackbar.Add($"Неожиданная ошибка: {ex.Message}", Severity.Error);
+            Snackbar.Add($"Ошибка: {ex.Message}", Severity.Error);
         }
         finally
         {
             _saving = false;
-            if (IsVisible)
-            {
-                try { StateHasChanged(); }
-                catch (ObjectDisposedException) { }
-            }
+            if (IsVisible) StateHasChanged();
         }
     }
 
@@ -259,111 +244,70 @@
         {
             var currentResp = await EmployeesClient.PositionsGetAsync(employeeId, _cts.Token);
             var currentIds = currentResp?.Data?
-                .Select(p => p.Id)
-                .Where(id => id.HasValue)
-                .Select(id => id!.Value)
+                .Where(p => p.Id.HasValue)
+                .Select(p => p.Id!.Value)
                 .ToHashSet() ?? new HashSet<int>();
 
             var desiredSet = new HashSet<int>(desiredPositionIds);
-            var toAdd = desiredSet.Except(currentIds).ToList();
-            var toRemove = currentIds.Except(desiredSet).ToList();
 
-            foreach (var posId in toAdd)
-            {
-                try
-                {
-                    await EmployeesClient.PositionsPutAsync(employeeId, posId, _cts.Token);
-                }
-                catch (ApiException aex) when (IsVisible)
-                {
-                    Snackbar.Add(ErrorHandler.GetErrorMessage(aex), Severity.Warning);
-                }
-            }
+            foreach (var id in desiredSet.Except(currentIds))
+                await EmployeesClient.PositionsPutAsync(employeeId, id, _cts.Token);
 
-            foreach (var posId in toRemove)
-            {
-                try
-                {
-                    await EmployeesClient.PositionsDeleteAsync(employeeId, posId, _cts.Token);
-                }
-                catch (ApiException aex) when (IsVisible)
-                {
-                    Snackbar.Add(ErrorHandler.GetErrorMessage(aex), Severity.Warning);
-                }
-            }
+            foreach (var id in currentIds.Except(desiredSet))
+                await EmployeesClient.PositionsDeleteAsync(employeeId, id, _cts.Token);
         }
-        catch (Exception) when (IsVisible)
+        catch
         {
-            Snackbar.Add("Не удалось полностью синхронизировать позиции", Severity.Warning);
+            Snackbar.Add("Ошибка синхронизации должностей", Severity.Warning);
         }
     }
 
-    private async Task SyncPhonesAsync(int employeeId, List<string> desiredPhones)
+    private async Task SyncPhonesAsync(int employeeId, List<string> phones)
     {
         try
         {
-            var phonesResp = await EmployeesClient.PhonesAsync(employeeId, _cts.Token);
+            var resp = await EmployeesClient.PhonesAsync(employeeId, _cts.Token);
+            var current = resp?.Data ?? new List<PhoneResponse>();
 
-            var currentPhones = phonesResp?.Data?
-                  .Where(p => p.Id.HasValue && !string.IsNullOrWhiteSpace(p.Phone_number))
-                  .Select(p => new PhoneInfo { Id = p.Id!.Value, Number = p.Phone_number!.Trim() })
-                  .ToList() ?? new List<PhoneInfo>();
+            var currentNumbers = current.Select(p => p.Phone_number).ToHashSet();
+            var desired = phones.ToHashSet();
 
-            var desiredSet = new HashSet<string>(desiredPhones, StringComparer.OrdinalIgnoreCase);
-            var currentNumbers = currentPhones.Select(p => p.Number).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            foreach (var p in current.Where(p => !desired.Contains(p.Phone_number)))
+                await AdminClient.PhonesDeleteAsync(p.Id!.Value, _cts.Token);
 
-            foreach (var phone in currentPhones.Where(cp => !desiredSet.Contains(cp.Number)))
-            {
-                try
+            foreach (var p in desired.Except(currentNumbers))
+                await AdminClient.PhonesPostAsync(new CreatePhoneRequest
                 {
-                    await AdminClient.PhonesDeleteAsync(phone.Id, _cts.Token);
-                }
-                catch (ApiException aex) when (IsVisible)
-                {
-                    Snackbar.Add(ErrorHandler.GetErrorMessage(aex), Severity.Warning);
-                }
-            }
-
-            foreach (var number in desiredSet.Except(currentNumbers))
-            {
-                try
-                {
-                    var createReq = new CreatePhoneRequest
-                    {
-                        Employee_id = employeeId,
-                        Phone_number = number
-                    };
-                    await AdminClient.PhonesPostAsync(createReq, _cts.Token);
-                }
-                catch (ApiException aex) when (IsVisible)
-                {
-                    Snackbar.Add(ErrorHandler.GetErrorMessage(aex), Severity.Warning);
-                }
-            }
+                    Employee_id = employeeId,
+                    Phone_number = p
+                }, _cts.Token);
         }
-        catch (Exception) when (IsVisible)
+        catch
         {
-            Snackbar.Add("Не удалось полностью синхронизировать телефоны", Severity.Warning);
+            Snackbar.Add("Ошибка синхронизации телефонов", Severity.Warning);
         }
     }
 
     private async Task Cancel()
     {
-        if (!IsVisible) return;
-        if (OnSaved.HasDelegate) await OnSaved.InvokeAsync(false);
+        if (OnSaved.HasDelegate)
+            await OnSaved.InvokeAsync(false);
+
         await CloseModalAsync();
     }
 
     private async Task CloseModalAsync()
     {
-        if (!IsVisible) return;
         IsVisible = false;
-        if (IsVisibleChanged.HasDelegate) await IsVisibleChanged.InvokeAsync(IsVisible);
+        if (IsVisibleChanged.HasDelegate)
+            await IsVisibleChanged.InvokeAsync(IsVisible);
     }
 
     private Task OnIsVisibleChanged(bool visible)
     {
-        if (!visible && OnSaved.HasDelegate) OnSaved.InvokeAsync(false);
+        if (!visible && OnSaved.HasDelegate)
+            OnSaved.InvokeAsync(false);
+
         return Task.CompletedTask;
     }
 

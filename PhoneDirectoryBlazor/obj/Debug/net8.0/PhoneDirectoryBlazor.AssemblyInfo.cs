@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PhoneDirectoryBlazor")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+12cda99ba158962bbb26434e8c6d14b1fa8d985d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1a6739da19461d2ebe1c5b9f2dd7a9222c9ab39a")]
 [assembly: System.Reflection.AssemblyProductAttribute("PhoneDirectoryBlazor")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PhoneDirectoryBlazor")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

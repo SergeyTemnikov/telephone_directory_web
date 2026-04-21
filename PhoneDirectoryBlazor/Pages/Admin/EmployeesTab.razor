@@ -154,13 +154,20 @@
                     try
                     {
                         var posResp = await EmployeesClient.PositionsGetAsync(it.Id!.Value);
-                        var positions = posResp?.Data?.Select(p => p.Name).Where(s => !string.IsNullOrWhiteSpace(s)).ToList()
-                                        ?? new List<string>();
-                        it.Positions = positions;
+                        it.Positions = posResp?.Data?
+                            .Select(p => p.Name)
+                            .Where(s => !string.IsNullOrWhiteSpace(s))
+                            .ToList() ?? new List<string>();
+
+                        it.PositionIds = posResp?.Data?
+                            .Where(p => p.Id.HasValue)
+                            .Select(p => p.Id!.Value)
+                            .ToList() ?? new List<int>();
                     }
                     catch
                     {
                         it.Positions = new List<string>();
+                        it.PositionIds = new List<int>();
                     }
                 }).ToArray();
 
@@ -210,7 +217,7 @@
             Phones = new List<string>(item.Phones),
             Address = item.Address,
             Comment = item.Comment,
-            Positions = new List<string>(item.Positions)
+            PositionIds = new List<int>(item.PositionIds)
         };
         isEditModalVisible = true;
         return Task.CompletedTask;

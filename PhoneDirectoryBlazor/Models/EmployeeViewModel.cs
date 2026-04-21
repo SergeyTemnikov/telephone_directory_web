@@ -6,6 +6,7 @@
         public string FullName { get; set; } = "";
         public string Email { get; set; } = "";
         public List<string> Positions { get; set; } = new();
+        public List<int> PositionIds { get; set; } = new();
         public int? DepartmentId { get; set; }
         public List<string> Phones { get; set; } = new();
         public string Address { get; set; } = "";
