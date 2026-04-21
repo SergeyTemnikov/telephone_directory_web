@@ -3,64 +3,20 @@
   "WorkspaceRootPath": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|c:\\users\\sergeyt\\source\\repos\\phonedirectoryblazor\\phonedirectoryblazor\\pages\\admin\\editemployeedialog.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|solutionrelative:phonedirectoryblazor\\pages\\admin\\editemployeedialog.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|c:\\users\\sergeyt\\source\\repos\\phonedirectoryblazor\\phonedirectoryblazor\\pages\\admin\\userstab.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|solutionrelative:phonedirectoryblazor\\pages\\admin\\userstab.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|c:\\users\\sergeyt\\source\\repos\\phonedirectoryblazor\\phonedirectoryblazor\\pages\\admin\\editdepartmentdialog.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|solutionrelative:phonedirectoryblazor\\pages\\admin\\editdepartmentdialog.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|c:\\users\\sergeyt\\source\\repos\\phonedirectoryblazor\\phonedirectoryblazor\\pages\\admin\\positionstab.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|solutionrelative:phonedirectoryblazor\\pages\\admin\\positionstab.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|c:\\users\\sergeyt\\source\\repos\\phonedirectoryblazor\\phonedirectoryblazor\\pages\\admin\\employeestab.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|solutionrelative:phonedirectoryblazor\\pages\\admin\\employeestab.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|c:\\users\\sergeyt\\source\\repos\\phonedirectoryblazor\\phonedirectoryblazor\\pages\\orgtree.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|solutionrelative:phonedirectoryblazor\\pages\\orgtree.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|c:\\users\\sergeyt\\source\\repos\\phonedirectoryblazor\\phonedirectoryblazor\\services\\api\\errors\\apierrorhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|solutionrelative:phonedirectoryblazor\\services\\api\\errors\\apierrorhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|c:\\users\\sergeyt\\source\\repos\\phonedirectoryblazor\\phonedirectoryblazor\\pages\\login.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|solutionrelative:phonedirectoryblazor\\pages\\login.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|c:\\users\\sergeyt\\source\\repos\\phonedirectoryblazor\\phonedirectoryblazor\\pages\\admin\\editpositiondialog.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|solutionrelative:phonedirectoryblazor\\pages\\admin\\editpositiondialog.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|c:\\users\\sergeyt\\source\\repos\\phonedirectoryblazor\\phonedirectoryblazor\\pages\\admin\\edituserdialog.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|solutionrelative:phonedirectoryblazor\\pages\\admin\\edituserdialog.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|c:\\users\\sergeyt\\source\\repos\\phonedirectoryblazor\\phonedirectoryblazor\\services\\api\\errors\\iapierrorhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|solutionrelative:phonedirectoryblazor\\services\\api\\errors\\iapierrorhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|c:\\users\\sergeyt\\source\\repos\\phonedirectoryblazor\\phonedirectoryblazor\\shared\\employeecard.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|solutionrelative:phonedirectoryblazor\\shared\\employeecard.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|c:\\users\\sergeyt\\source\\repos\\phonedirectoryblazor\\phonedirectoryblazor\\wwwroot\\css\\organization-tree.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
-      "RelativeMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|solutionrelative:phonedirectoryblazor\\wwwroot\\css\\organization-tree.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|c:\\users\\sergeyt\\source\\repos\\phonedirectoryblazor\\phonedirectoryblazor\\layout\\navmenu.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|solutionrelative:phonedirectoryblazor\\layout\\navmenu.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|c:\\users\\sergeyt\\source\\repos\\phonedirectoryblazor\\phonedirectoryblazor\\layout\\mainlayout.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|solutionrelative:phonedirectoryblazor\\layout\\mainlayout.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|c:\\users\\sergeyt\\source\\repos\\phonedirectoryblazor\\phonedirectoryblazor\\components\\yandexmap.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|solutionrelative:phonedirectoryblazor\\components\\yandexmap.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|c:\\users\\sergeyt\\source\\repos\\phonedirectoryblazor\\phonedirectoryblazor\\pages\\admin\\userstab.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|solutionrelative:phonedirectoryblazor\\pages\\admin\\userstab.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|c:\\users\\sergeyt\\source\\repos\\phonedirectoryblazor\\phonedirectoryblazor\\pages\\admin\\departmentstab.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{429C90DF-140D-4BDB-970B-B9893BFAA319}|PhoneDirectoryBlazor\\PhoneDirectoryBlazor.csproj|solutionrelative:phonedirectoryblazor\\pages\\admin\\departmentstab.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -70,8 +26,34 @@
       "DocumentGroups": [
         {
           "DockedWidth": 242,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 0,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "UsersTab.razor",
+              "DocumentMoniker": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Pages\\Admin\\UsersTab.razor",
+              "RelativeDocumentMoniker": "PhoneDirectoryBlazor\\Pages\\Admin\\UsersTab.razor",
+              "ToolTip": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Pages\\Admin\\UsersTab.razor",
+              "RelativeToolTip": "PhoneDirectoryBlazor\\Pages\\Admin\\UsersTab.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAIwAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-21T18:11:15.608Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "PositionsTab.razor",
+              "DocumentMoniker": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Pages\\Admin\\PositionsTab.razor",
+              "RelativeDocumentMoniker": "PhoneDirectoryBlazor\\Pages\\Admin\\PositionsTab.razor",
+              "ToolTip": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Pages\\Admin\\PositionsTab.razor",
+              "RelativeToolTip": "PhoneDirectoryBlazor\\Pages\\Admin\\PositionsTab.razor",
+              "ViewState": "AgIAAEcAAAAAAAAAAAAmwHEAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-21T18:06:51.968Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Document",
               "DocumentIndex": 2,
@@ -80,182 +62,23 @@
               "RelativeDocumentMoniker": "PhoneDirectoryBlazor\\Pages\\Admin\\EmployeesTab.razor",
               "ToolTip": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Pages\\Admin\\EmployeesTab.razor",
               "RelativeToolTip": "PhoneDirectoryBlazor\\Pages\\Admin\\EmployeesTab.razor",
-              "ViewState": "AgIAALcAAAAAAAAAAAAmwNYAAAAtAAAAAAAAAA==",
+              "ViewState": "AgIAAMAAAAAAAAAAAAAqwOMAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-21T17:34:35.96Z",
+              "WhenOpened": "2026-04-21T18:03:24.163Z",
               "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "ApiErrorHandler.cs",
-              "DocumentMoniker": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Services\\Api\\Errors\\ApiErrorHandler.cs",
-              "RelativeDocumentMoniker": "PhoneDirectoryBlazor\\Services\\Api\\Errors\\ApiErrorHandler.cs",
-              "ToolTip": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Services\\Api\\Errors\\ApiErrorHandler.cs",
-              "RelativeToolTip": "PhoneDirectoryBlazor\\Services\\Api\\Errors\\ApiErrorHandler.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAABAAAAAjAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-21T14:44:47.152Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "Login.razor",
-              "DocumentMoniker": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Pages\\Login.razor",
-              "RelativeDocumentMoniker": "PhoneDirectoryBlazor\\Pages\\Login.razor",
-              "ToolTip": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Pages\\Login.razor",
-              "RelativeToolTip": "PhoneDirectoryBlazor\\Pages\\Login.razor",
-              "ViewState": "AgIAABUAAAAAAAAAAAAAADcAAAAaAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-21T13:23:50.951Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "EditDepartmentDialog.razor",
-              "DocumentMoniker": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Pages\\Admin\\EditDepartmentDialog.razor",
-              "RelativeDocumentMoniker": "PhoneDirectoryBlazor\\Pages\\Admin\\EditDepartmentDialog.razor",
-              "ToolTip": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Pages\\Admin\\EditDepartmentDialog.razor",
-              "RelativeToolTip": "PhoneDirectoryBlazor\\Pages\\Admin\\EditDepartmentDialog.razor",
-              "ViewState": "AgIAAHsAAAAAAAAAAAAAAHAAAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-21T13:17:45.653Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "EditPositionDialog.razor",
-              "DocumentMoniker": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Pages\\Admin\\EditPositionDialog.razor",
-              "RelativeDocumentMoniker": "PhoneDirectoryBlazor\\Pages\\Admin\\EditPositionDialog.razor",
-              "ToolTip": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Pages\\Admin\\EditPositionDialog.razor",
-              "RelativeToolTip": "PhoneDirectoryBlazor\\Pages\\Admin\\EditPositionDialog.razor",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFYAAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-21T13:14:42.399Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "EditEmployeeDialog.razor",
-              "DocumentMoniker": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Pages\\Admin\\EditEmployeeDialog.razor",
-              "RelativeDocumentMoniker": "PhoneDirectoryBlazor\\Pages\\Admin\\EditEmployeeDialog.razor",
-              "ToolTip": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Pages\\Admin\\EditEmployeeDialog.razor",
-              "RelativeToolTip": "PhoneDirectoryBlazor\\Pages\\Admin\\EditEmployeeDialog.razor",
-              "ViewState": "AgIAAAsBAAAAAAAAAAAqwD4BAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-21T12:43:16.213Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "IApiErrorHandler.cs",
-              "DocumentMoniker": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Services\\Api\\Errors\\IApiErrorHandler.cs",
-              "RelativeDocumentMoniker": "PhoneDirectoryBlazor\\Services\\Api\\Errors\\IApiErrorHandler.cs",
-              "ToolTip": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Services\\Api\\Errors\\IApiErrorHandler.cs",
-              "RelativeToolTip": "PhoneDirectoryBlazor\\Services\\Api\\Errors\\IApiErrorHandler.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-21T12:32:11.206Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "OrgTree.razor",
-              "DocumentMoniker": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Pages\\OrgTree.razor",
-              "RelativeDocumentMoniker": "PhoneDirectoryBlazor\\Pages\\OrgTree.razor",
-              "ToolTip": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Pages\\OrgTree.razor",
-              "RelativeToolTip": "PhoneDirectoryBlazor\\Pages\\OrgTree.razor",
-              "ViewState": "AgIAANMAAAAAAAAAAAAmwOIAAAAHAAAAAAAAAA==",
+              "Title": "DepartmentsTab.razor",
+              "DocumentMoniker": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Pages\\Admin\\DepartmentsTab.razor",
+              "RelativeDocumentMoniker": "PhoneDirectoryBlazor\\Pages\\Admin\\DepartmentsTab.razor",
+              "ToolTip": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Pages\\Admin\\DepartmentsTab.razor",
+              "RelativeToolTip": "PhoneDirectoryBlazor\\Pages\\Admin\\DepartmentsTab.razor",
+              "ViewState": "AgIAAFcAAAAAAAAAAAAuwHUAAAA+AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-15T08:38:46.598Z",
+              "WhenOpened": "2026-04-21T17:54:26.485Z",
               "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "EditUserDialog.razor",
-              "DocumentMoniker": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Pages\\Admin\\EditUserDialog.razor",
-              "RelativeDocumentMoniker": "PhoneDirectoryBlazor\\Pages\\Admin\\EditUserDialog.razor",
-              "ToolTip": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Pages\\Admin\\EditUserDialog.razor",
-              "RelativeToolTip": "PhoneDirectoryBlazor\\Pages\\Admin\\EditUserDialog.razor",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAArAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-16T11:38:25.064Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "EmployeeCard.razor",
-              "DocumentMoniker": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Shared\\EmployeeCard.razor",
-              "RelativeDocumentMoniker": "PhoneDirectoryBlazor\\Shared\\EmployeeCard.razor",
-              "ToolTip": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Shared\\EmployeeCard.razor",
-              "RelativeToolTip": "PhoneDirectoryBlazor\\Shared\\EmployeeCard.razor",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAAWAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-15T08:41:05.301Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "organization-tree.css",
-              "DocumentMoniker": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\wwwroot\\css\\organization-tree.css",
-              "RelativeDocumentMoniker": "PhoneDirectoryBlazor\\wwwroot\\css\\organization-tree.css",
-              "ToolTip": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\wwwroot\\css\\organization-tree.css",
-              "RelativeToolTip": "PhoneDirectoryBlazor\\wwwroot\\css\\organization-tree.css",
-              "ViewState": "AgIAAEYAAAAAAAAAAAAYwHoAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
-              "WhenOpened": "2026-04-15T08:39:48.146Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "NavMenu.razor",
-              "DocumentMoniker": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Layout\\NavMenu.razor",
-              "RelativeDocumentMoniker": "PhoneDirectoryBlazor\\Layout\\NavMenu.razor",
-              "ToolTip": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Layout\\NavMenu.razor",
-              "RelativeToolTip": "PhoneDirectoryBlazor\\Layout\\NavMenu.razor",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAAeAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-15T08:26:10.221Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "MainLayout.razor",
-              "DocumentMoniker": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Layout\\MainLayout.razor",
-              "RelativeDocumentMoniker": "PhoneDirectoryBlazor\\Layout\\MainLayout.razor",
-              "ToolTip": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Layout\\MainLayout.razor",
-              "RelativeToolTip": "PhoneDirectoryBlazor\\Layout\\MainLayout.razor",
-              "ViewState": "AgIAAA4AAAAAAAAAAAAqwBUAAAAxAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-15T08:26:08.467Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 13,
-              "Title": "YandexMap.razor",
-              "DocumentMoniker": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Components\\YandexMap.razor",
-              "RelativeDocumentMoniker": "PhoneDirectoryBlazor\\Components\\YandexMap.razor",
-              "ToolTip": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Components\\YandexMap.razor",
-              "RelativeToolTip": "PhoneDirectoryBlazor\\Components\\YandexMap.razor",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAyAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-15T08:25:06.821Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 14,
-              "Title": "UsersTab.razor",
-              "DocumentMoniker": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Pages\\Admin\\UsersTab.razor",
-              "RelativeDocumentMoniker": "PhoneDirectoryBlazor\\Pages\\Admin\\UsersTab.razor",
-              "ToolTip": "C:\\Users\\SergeyT\\source\\repos\\PhoneDirectoryBlazor\\PhoneDirectoryBlazor\\Pages\\Admin\\UsersTab.razor",
-              "RelativeToolTip": "PhoneDirectoryBlazor\\Pages\\Admin\\UsersTab.razor",
-              "ViewState": "AgIAAEgAAAAAAAAAAAAAAFcAAAAfAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-15T07:10:06.825Z"
             }
           ]
         }

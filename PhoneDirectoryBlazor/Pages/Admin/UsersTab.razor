@@ -6,16 +6,22 @@
 
 <MudStack Spacing="2">
     <MudText Typo="Typo.h5">Пользователи</MudText>
-    
+
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OpenCreate">
         <MudIcon Icon="@Icons.Material.Filled.PersonAdd" Class="mr-2" />
         Добавить пользователя
     </MudButton>
 
-    <MudTable Items="_items" Hover="true" Bordered="true" Striped="true">
+    <MudTable Items="@_sortedItems" Hover="true" Bordered="true" Striped="true">
         <HeaderContent>
-            <MudTh>Id</MudTh>
-            <MudTh>Email</MudTh>
+            <MudTh @onclick="() => ToggleSort(nameof(UserViewModel.Id))" Style="cursor:pointer;">
+                Id
+                @SortIcon(nameof(UserViewModel.Id))
+            </MudTh>
+            <MudTh @onclick="() => ToggleSort(nameof(UserViewModel.Email))" Style="cursor:pointer;">
+                Email
+                @SortIcon(nameof(UserViewModel.Email))
+            </MudTh>
             <MudTh>Статус</MudTh>
             <MudTh>Дата окончания доступа</MudTh>
             <MudTh>Роли</MudTh>
@@ -25,8 +31,8 @@
             <MudTd DataLabel="Id">@context.Id</MudTd>
             <MudTd DataLabel="Email">@context.Email</MudTd>
             <MudTd DataLabel="Статус">
-                <MudChip T="bool" 
-                         Color="@(context.IsActive ? Color.Success : Color.Error)" 
+                <MudChip T="bool"
+                         Color="@(context.IsActive ? Color.Success : Color.Error)"
                          Size="Size.Small">
                     @(context.IsActive ? "Активен" : "Неактивен")
                 </MudChip>
@@ -65,6 +71,11 @@
     private bool isEditModalVisible;
     private UserViewModel? editingModel;
 
+    private string _sortedColumn = null;
+    private SortDirection _sortDirection = SortDirection.None;
+    private Func<UserViewModel, object>? _sortBy;
+    private IEnumerable<UserViewModel> _sortedItems => ApplySorting(_items);
+
     protected override async Task OnInitializedAsync()
     {
         await LoadItems();
@@ -76,19 +87,23 @@
         {
             var resp = await AdminClient.UsersGetAsync();
             var data = resp?.Data ?? new List<UserResponse>();
-            
+
             _items = data.Select(u => new UserViewModel
             {
                 Id = u.Id,
                 Email = u.Email ?? string.Empty,
                 EndDateOfAccess = ParseApiDate(u.End_date_of_access),
                 IsActive = u.Is_active ?? false,
-                Roles = u.Roles?.Select(r => new RoleViewModel 
-                { 
-                    Id = r.Id, 
-                    Name = r.Name ?? string.Empty 
+                Roles = u.Roles?.Select(r => new RoleViewModel
+                {
+                    Id = r.Id,
+                    Name = r.Name ?? string.Empty
                 }).ToList() ?? new List<RoleViewModel>()
             }).ToList();
+
+            _sortedColumn = null;
+            _sortDirection = SortDirection.None;
+            _sortBy = null;
         }
         catch (ApiException aex)
         {
@@ -101,6 +116,65 @@
             _items = new List<UserViewModel>();
         }
     }
+
+    private IEnumerable<UserViewModel> ApplySorting(List<UserViewModel> items)
+    {
+        if (_sortBy == null || _sortDirection == SortDirection.None) return items;
+        return _sortDirection == SortDirection.Ascending ? items.OrderBy(_sortBy) : items.OrderByDescending(_sortBy);
+    }
+
+    private void ToggleSort(string propertyName)
+    {
+        if (_sortedColumn == propertyName)
+        {
+            switch (_sortDirection)
+            {
+                case SortDirection.None:
+                    _sortDirection = SortDirection.Ascending;
+                    break;
+                case SortDirection.Ascending:
+                    _sortDirection = SortDirection.Descending;
+                    break;
+                case SortDirection.Descending:
+                    _sortDirection = SortDirection.None;
+                    break;
+            }
+        }
+        else
+        {
+            _sortedColumn = propertyName;
+            _sortDirection = SortDirection.Ascending;
+        }
+
+        _sortBy = _sortDirection switch
+        {
+            SortDirection.Ascending or SortDirection.Descending => propertyName switch
+            {
+                nameof(UserViewModel.Id) => item => item.Id ?? 0,
+                nameof(UserViewModel.Email) => item => item.Email ?? string.Empty,
+                _ => null
+            },
+            _ => null
+        };
+        StateHasChanged();
+    }
+
+    private RenderFragment SortIcon(string propertyName) => builder =>
+    {
+        if (_sortedColumn != propertyName) return;
+
+        var icon = _sortDirection switch
+        {
+            SortDirection.Ascending => Icons.Material.Filled.ArrowUpward,
+            SortDirection.Descending => Icons.Material.Filled.ArrowDownward,
+            _ => Icons.Material.Filled.UnfoldMore
+        };
+
+        builder.OpenComponent<MudIcon>(0);
+        builder.AddAttribute(1, "Icon", icon);
+        builder.AddAttribute(2, "Style", "margin-left: 8px; font-size: 1rem; vertical-align: middle;");
+        builder.CloseComponent();
+    };
 
     private Task OpenCreate()
     {
@@ -136,11 +210,11 @@
     private async Task Delete(UserViewModel item)
     {
         bool? confirm = await DialogService.ShowMessageBoxAsync(
-            "Подтвердите", 
-            $"Удалить пользователя «{item.Email}»?", 
-            yesText: "Да", 
+            "Подтвердите",
+            $"Удалить пользователя «{item.Email}»?",
+            yesText: "Да",
             noText: "Нет");
-        
+
         if (confirm == true)
         {
             try

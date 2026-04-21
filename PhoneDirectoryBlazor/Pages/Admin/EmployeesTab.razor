@@ -10,10 +10,16 @@
 <MudStack Spacing="2">
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OpenCreate">Добавить сотрудника</MudButton>
 
-    <MudTable Items="_items" Hover="true" Bordered="true" Striped="true">
+    <MudTable Items="@_sortedItems" Hover="true" Bordered="true" Striped="true">
         <HeaderContent>
-            <MudTh>Id</MudTh>
-            <MudTh>ФИО</MudTh>
+            <MudTh @onclick="() => ToggleSort(nameof(EmployeeViewModel.Id))" Style="cursor:pointer;">
+                Id
+                @SortIcon(nameof(EmployeeViewModel.Id))
+            </MudTh>
+            <MudTh @onclick="() => ToggleSort(nameof(EmployeeViewModel.FullName))" Style="cursor:pointer;">
+                ФИО
+                @SortIcon(nameof(EmployeeViewModel.FullName))
+            </MudTh>
             <MudTh>Email</MudTh>
             <MudTh>Отдел</MudTh>
             <MudTh>Менеджер</MudTh>
@@ -52,9 +58,13 @@
 @code {
     private List<EmployeeViewModel> _items = new();
     private List<DepartmentViewModel> _departments = new();
-
     private bool isEditModalVisible;
     private EmployeeViewModel? editingModel;
+
+    private string _sortedColumn = null;
+    private SortDirection _sortDirection = SortDirection.None;
+    private Func<EmployeeViewModel, object>? _sortBy;
+    private IEnumerable<EmployeeViewModel> _sortedItems => ApplySorting(_items);
 
     protected override async Task OnInitializedAsync()
     {
@@ -173,6 +183,10 @@
 
             await Task.WhenAll(phoneTasks);
             await Task.WhenAll(positionsTasks);
+
+            _sortedColumn = null;
+            _sortDirection = SortDirection.None;
+            _sortBy = null;
         }
         catch (ApiException aex)
         {
@@ -185,6 +199,70 @@
             _items = new List<EmployeeViewModel>();
         }
     }
+
+    private IEnumerable<EmployeeViewModel> ApplySorting(List<EmployeeViewModel> items)
+    {
+        if (_sortBy == null || _sortDirection == SortDirection.None)
+            return items;
+
+        return _sortDirection == SortDirection.Ascending
+            ? items.OrderBy(_sortBy)
+            : items.OrderByDescending(_sortBy);
+    }
+
+    private void ToggleSort(string propertyName)
+    {
+        if (_sortedColumn == propertyName)
+        {
+            switch (_sortDirection)
+            {
+                case SortDirection.None:
+                    _sortDirection = SortDirection.Ascending;
+                    break;
+                case SortDirection.Ascending:
+                    _sortDirection = SortDirection.Descending;
+                    break;
+                case SortDirection.Descending:
+                    _sortDirection = SortDirection.None;
+                    break;
+            }
+        }
+        else
+        {
+            _sortedColumn = propertyName;
+            _sortDirection = SortDirection.Ascending;
+        }
+
+        _sortBy = _sortDirection switch
+        {
+            SortDirection.Ascending or SortDirection.Descending => propertyName switch
+            {
+                nameof(EmployeeViewModel.Id) => item => item.Id ?? 0,
+                nameof(EmployeeViewModel.FullName) => item => item.FullName ?? string.Empty,
+                _ => null
+            },
+            _ => null
+        };
+
+        StateHasChanged();
+    }
+
+    private RenderFragment SortIcon(string propertyName) => builder =>
+    {
+        if (_sortedColumn != propertyName) return;
+
+        var icon = _sortDirection switch
+        {
+            SortDirection.Ascending => Icons.Material.Filled.ArrowUpward,
+            SortDirection.Descending => Icons.Material.Filled.ArrowDownward,
+            _ => Icons.Material.Filled.UnfoldMore
+        };
+
+        builder.OpenComponent<MudIcon>(0);
+        builder.AddAttribute(1, "Icon", icon);
+        builder.AddAttribute(2, "Style", "margin-left: 8px; font-size: 1rem; vertical-align: middle;");
+        builder.CloseComponent();
+    };
 
     private string GetDepartmentName(int? departmentId)
     {

@@ -5,16 +5,22 @@
 
 <MudStack Spacing="2">
     <MudText Typo="Typo.h5">Позиции</MudText>
-    
+
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OpenCreate">
         <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-2" />
         Добавить позицию
     </MudButton>
 
-    <MudTable Items="_items" Hover="true" Bordered="true" Striped="true">
+    <MudTable Items="@_sortedItems" Hover="true" Bordered="true" Striped="true">
         <HeaderContent>
-            <MudTh>Id</MudTh>
-            <MudTh>Название</MudTh>
+            <MudTh @onclick="() => ToggleSort(nameof(PositionViewModel.Id))" Style="cursor:pointer;">
+                Id
+                @SortIcon(nameof(PositionViewModel.Id))
+            </MudTh>
+            <MudTh @onclick="() => ToggleSort(nameof(PositionViewModel.Name))" Style="cursor:pointer;">
+                Название
+                @SortIcon(nameof(PositionViewModel.Name))
+            </MudTh>
             <MudTh>Действия</MudTh>
         </HeaderContent>
         <RowTemplate>
@@ -45,6 +51,11 @@
     private bool isEditModalVisible;
     private PositionViewModel? editingModel;
 
+    private string _sortedColumn = null;
+    private SortDirection _sortDirection = SortDirection.None;
+    private Func<PositionViewModel, object>? _sortBy;
+    private IEnumerable<PositionViewModel> _sortedItems => ApplySorting(_items);
+
     protected override async Task OnInitializedAsync()
     {
         await LoadItems();
@@ -56,12 +67,16 @@
         {
             var resp = await AdminClient.PositionsGetAsync();
             var data = resp?.Data ?? new List<PositionResponse>();
-            
+
             _items = data.Select(p => new PositionViewModel
             {
                 Id = p.Id,
                 Name = p.Name ?? string.Empty
             }).ToList();
+
+            _sortedColumn = null;
+            _sortDirection = SortDirection.None;
+            _sortBy = null;
         }
         catch (ApiException aex)
         {
@@ -74,6 +89,65 @@
             _items = new List<PositionViewModel>();
         }
     }
+
+    private IEnumerable<PositionViewModel> ApplySorting(List<PositionViewModel> items)
+    {
+        if (_sortBy == null || _sortDirection == SortDirection.None) return items;
+        return _sortDirection == SortDirection.Ascending ? items.OrderBy(_sortBy) : items.OrderByDescending(_sortBy);
+    }
+
+    private void ToggleSort(string propertyName)
+    {
+        if (_sortedColumn == propertyName)
+        {
+            switch (_sortDirection)
+            {
+                case SortDirection.None:
+                    _sortDirection = SortDirection.Ascending;
+                    break;
+                case SortDirection.Ascending:
+                    _sortDirection = SortDirection.Descending;
+                    break;
+                case SortDirection.Descending:
+                    _sortDirection = SortDirection.None;
+                    break;
+            }
+        }
+        else
+        {
+            _sortedColumn = propertyName;
+            _sortDirection = SortDirection.Ascending;
+        }
+
+        _sortBy = _sortDirection switch
+        {
+            SortDirection.Ascending or SortDirection.Descending => propertyName switch
+            {
+                nameof(PositionViewModel.Id) => item => item.Id ?? 0,
+                nameof(PositionViewModel.Name) => item => item.Name ?? string.Empty,
+                _ => null
+            },
+            _ => null
+        };
+        StateHasChanged();
+    }
+
+    private RenderFragment SortIcon(string propertyName) => builder =>
+    {
+        if (_sortedColumn != propertyName) return;
+
+        var icon = _sortDirection switch
+        {
+            SortDirection.Ascending => Icons.Material.Filled.ArrowUpward,
+            SortDirection.Descending => Icons.Material.Filled.ArrowDownward,
+            _ => Icons.Material.Filled.UnfoldMore
+        };
+
+        builder.OpenComponent<MudIcon>(0);
+        builder.AddAttribute(1, "Icon", icon);
+        builder.AddAttribute(2, "Style", "margin-left: 8px; font-size: 1rem; vertical-align: middle;");
+        builder.CloseComponent();
+    };
 
     private Task OpenCreate()
     {
@@ -106,11 +180,11 @@
     private async Task Delete(PositionViewModel item)
     {
         bool? confirm = await DialogService.ShowMessageBoxAsync(
-            "Подтвердите", 
-            $"Удалить позицию «{item.Name}»?", 
-            yesText: "Да", 
+            "Подтвердите",
+            $"Удалить позицию «{item.Name}»?",
+            yesText: "Да",
             noText: "Нет");
-        
+
         if (confirm == true)
         {
             try
